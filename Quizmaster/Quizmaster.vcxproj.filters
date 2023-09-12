@@ -18,10 +18,24 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseHeader.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SDL2_ttf.dll" />
+    <None Include="SDL2.dll" />
+    <None Include="SDL2_image.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="mcFont.ttf" />
   </ItemGroup>
 </Project>
