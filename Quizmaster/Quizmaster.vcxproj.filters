@@ -29,6 +29,15 @@
     <ClInclude Include="Text.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextInput.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IClickable.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2_ttf.dll" />

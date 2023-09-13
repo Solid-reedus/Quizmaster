@@ -146,7 +146,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseHeader.h" />
+    <ClInclude Include="Button.h" />
+    <ClInclude Include="IClickable.h" />
     <ClInclude Include="Text.h" />
+    <ClInclude Include="TextInput.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2.dll" />

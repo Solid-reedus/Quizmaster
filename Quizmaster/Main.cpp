@@ -2,6 +2,8 @@
 #include "SDL.h"
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include "Text.h"
+
 
 int const SCREEN_WIDTH = 1200;
 int const SCREEN_HEIGHT = 800;
@@ -29,9 +31,18 @@ SDL_Surface* gSurface = NULL;
 
 TTF_Font* gFont;
 
+Text testingText;
+
+/*
+(std::string m_text, int m_xPos, int m_yPos, int m_size,
+         TTF_Font* m_font, SDL_Color m_color, SDL_Renderer* m_renderer);
+
+*/
+
 
 bool Init()
 {
+
     //Initialization flag
     bool success = true;
 
@@ -43,6 +54,7 @@ bool Init()
     }
     else
     {
+
         //Create window
         gWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if (gWindow == NULL)
@@ -73,6 +85,8 @@ bool Init()
     }
     
 
+    SDL_Color color = { 0,0,0 };
+    testingText = Text("Andrzej Betiuk", 100, 100, 100, gFont, color, gRenderer);
 
     return success;
 }
@@ -80,6 +94,7 @@ bool Init()
 
 void Close()
 {
+    testingText.Free();
     //Deallocate surface
     SDL_FreeSurface(gSurface);
     gSurface = NULL;
@@ -105,10 +120,6 @@ void Update()
     //Event handler
     SDL_Event e;
 
-
-    SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, "jeff", { 0, 0, 0 }); // Replace text and color as needed
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
-
     //While application is running
     while (!quit)
     {
@@ -124,14 +135,16 @@ void Update()
 
         SDL_Rect textRect = { 10, 10, 100, 100 };
 
-        //Clear screen
-        //SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
-
-
-        SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        // this method will clear the last screen so you dont see 
+        // things from the last rendered frame
         SDL_RenderClear(gRenderer);
-        SDL_RenderCopy(gRenderer, textTexture, NULL, &textRect);
-        SDL_FreeSurface(textSurface);
+
+        // this code set the background of the program to white
+        SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
+        testingText.Render();
+
+        //this code will display the final result
         SDL_RenderPresent(gRenderer);
 
     }
