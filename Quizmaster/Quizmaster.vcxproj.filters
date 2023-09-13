@@ -21,6 +21,12 @@
     <ClCompile Include="Text.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseHeader.h">
@@ -36,6 +42,12 @@
       <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="IClickable.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UiHeader.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MySQL.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>

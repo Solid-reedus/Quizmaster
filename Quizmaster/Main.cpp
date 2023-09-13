@@ -1,8 +1,5 @@
-#include <iostream>
-#include "SDL.h"
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include "Text.h"
+#include "UiHeader.h"
+#include "BaseHeader.h"
 
 
 int const SCREEN_WIDTH = 1200;

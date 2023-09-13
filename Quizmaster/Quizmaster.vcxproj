@@ -71,12 +71,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\dogef\Documents\C++ project\libraries\SDL2;C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\dogef\Documents\C++ project\libraries\SDL2\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\dogef\Documents\C++ project\libraries\SDL2;C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2;C:\Users\dogef\Documents\C++ project\libraries\mysql-connector-c++-8.1.0-winx64;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\dogef\Documents\C++ project\libraries\SDL2\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\mysql-connector-c++-8.1.0-winx64\lib64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\dogef\Documents\C++ project\libraries\SDL2;C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\dogef\Documents\C++ project\libraries\SDL2\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\dogef\Documents\C++ project\libraries\SDL2;C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2;C:\Users\dogef\Documents\C++ project\libraries\mysql-connector-c++-8.1.0-winx64;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\dogef\Documents\C++ project\libraries\SDL2\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\mysql-connector-c++-8.1.0-winx64\lib64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -84,13 +84,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\dogef\Documents\C++ project\libraries\SDL2\include;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2\include;C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\dogef\Documents\C++ project\libraries\SDL2\include;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2\include;C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3\include;C:\Users\dogef\Documents\C++ project\libraries\mysql-connector-c++-8.1.0-winx64\include\jdbc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;mysqlcppconn-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -113,15 +113,15 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>STATIC_CONCPP;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\dogef\Documents\C++ project\libraries\SDL2\include;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2\include;C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\dogef\Documents\C++ project\libraries\SDL2\include;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2\include;C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3\include;C:\Users\dogef\Documents\C++ project\libraries\mysql-connector-c++-8.1.0-winx64\include\jdbc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\dogef\Documents\C++ project\libraries\SDL2_image-2.6.3\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\SDL2_ttf-2.20.2\lib\x64;C:\Users\dogef\Documents\C++ project\libraries\mysql-connector-c++-8.1.0-winx64\lib64\vs14;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;mysqlcppconn-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -141,15 +141,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Text.cpp" />
+    <ClCompile Include="TextInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseHeader.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="IClickable.h" />
+    <ClInclude Include="MySQL.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="TextInput.h" />
+    <ClInclude Include="UiHeader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2.dll" />
