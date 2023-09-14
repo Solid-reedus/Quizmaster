@@ -2,6 +2,19 @@
 #include "BaseHeader.h"
 
 
+#include <mysql_driver.h>
+#include <mysql_connection.h>
+#include <cppconn/driver.h>
+#include <cppconn/resultset.h>
+#include <cppconn/statement.h>
+
+
+const std::string db_host = "localhost";
+const std::string db_user = "root";
+const std::string db_password = "";
+const std::string db_name = "quizmaster";
+
+
 int const SCREEN_WIDTH = 1200;
 int const SCREEN_HEIGHT = 800;
 
@@ -84,6 +97,63 @@ bool Init()
 
     SDL_Color color = { 0,0,0 };
     testingText = Text("Andrzej Betiuk", 100, 100, 100, gFont, color, gRenderer);
+
+    /*
+    sql::mysql::MySQL_Driver* driver;
+    sql::Connection* con;
+
+    driver = sql::mysql::get_mysql_driver_instance();
+    con = driver->connect(db_host, db_user, db_password);
+    con->setSchema(db_name);
+    */
+    try {
+        sql::mysql::MySQL_Driver* driver;
+        sql::Connection* con;
+
+        // Create a MySQL driver object
+        driver = sql::mysql::get_mysql_driver_instance();
+
+        // Connect to the MySQL database
+        con = driver->connect("tcp://127.0.0.1:3306", "root", "");
+
+        // Connect to the specific database
+        con->setSchema("quizmaster");
+
+        // Create a statement
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+
+        // Execute a SQL query
+        sql::ResultSet* res;
+        res = stmt->executeQuery("SELECT * FROM answers WHERE 1");
+
+
+        int columnCount = res->getMetaData()->getColumnCount();
+
+
+        while (res->next()) {
+            for (int i = 1; i <= columnCount; ++i) {
+                std::string columnName = res->getMetaData()->getColumnName(i);
+                std::string columnValue = res->getString(i);
+
+                std::cout << columnName << ": " << columnValue << std::endl;
+            }
+            std::cout << std::endl; // Separate rows with an empty line
+        }
+
+
+
+
+        // Clean up
+        delete res;
+        delete stmt;
+        delete con;
+
+    }
+    catch (sql::SQLException& e) {
+        std::cerr << "SQL Error: " << e.what() << std::endl;
+    }
+
 
     return success;
 }
