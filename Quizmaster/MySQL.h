@@ -20,7 +20,6 @@ class MySQL
 
 	bool ConnectToDb();
 
-
 	const std::string db_host = "localhost";
 	const std::string db_user = "root";
 	const std::string db_password = "";

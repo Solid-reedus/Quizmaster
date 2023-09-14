@@ -13,45 +13,60 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\UI">
+      <UniqueIdentifier>{65aedd45-13ab-490c-aac7-57b2be31cbde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\database">
+      <UniqueIdentifier>{a7dab559-4f62-45f1-9be4-caf0478de15f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{31cb6b9f-b084-4ac5-a025-6e80cc43d071}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\database">
+      <UniqueIdentifier>{ad879edd-92b9-4beb-b930-ce8ddb2876d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Text.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Button.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Source Files\UI</Filter>
     </ClCompile>
     <ClCompile Include="TextInput.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Question.cpp">
+      <Filter>Source Files\database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseHeader.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="Text.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="Button.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextInput.h">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="IClickable.h">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Resource Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="TextInput.h">
+      <Filter>Resource Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="UiHeader.h">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="MySQL.h">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\database</Filter>
     </ClInclude>
     <ClInclude Include="Question.h">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

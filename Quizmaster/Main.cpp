@@ -1,7 +1,6 @@
 #include "UiHeader.h"
 #include "BaseHeader.h"
 
-
 #include <mysql_driver.h>
 #include <mysql_connection.h>
 #include <cppconn/driver.h>
