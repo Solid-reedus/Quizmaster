@@ -152,6 +152,7 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="IClickable.h" />
     <ClInclude Include="MySQL.h" />
+    <ClInclude Include="Question.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="TextInput.h" />
     <ClInclude Include="UiHeader.h" />

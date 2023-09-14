@@ -50,6 +50,9 @@
     <ClInclude Include="MySQL.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="Question.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2_ttf.dll" />
