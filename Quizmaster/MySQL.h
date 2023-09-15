@@ -6,7 +6,14 @@
 #include <cppconn/driver.h>
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
+#include <sstream>
+
 #include "User.h"
+#include <vector>
+
+#ifndef QUESTION
+#include "Question.h"
+#endif
 
 
 
@@ -19,13 +26,13 @@ class MySQL
 
 	void Free();
 
+	std::vector<Question>* GetQuestions(std::string m_category);
 	private:
 
 	bool ConnectToDb();
-	sql::ResultSet GetQuestions(std::string m_category);
 
 	void MakeAcount(std::string m_name, std::string m_password);
-	User GetUser(std::string m_name, std::string m_password);
+	User* GetUser(std::string m_name, std::string m_password);
 
 
 	const std::string dbHost = "localhost";
@@ -35,7 +42,6 @@ class MySQL
 
 	sql::mysql::MySQL_Driver* driver;
 	sql::Connection* con;
-
 
 };
 

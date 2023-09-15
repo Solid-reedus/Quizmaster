@@ -1,21 +1,12 @@
 #include "UiHeader.h"
 #include "BaseHeader.h"
 #include "Quiz.h"
+#include "MySQL.h"
 
-
-#include <mysql_driver.h>
-#include <mysql_connection.h>
-#include <cppconn/driver.h>
-#include <cppconn/resultset.h>
-#include <cppconn/statement.h>
-
-
-const std::string db_host = "localhost";
-const std::string db_user = "root";
-const std::string db_password = "";
-const std::string db_name = "quizmaster";
+const SDL_Color color = { 0,0,0 };
 
 static Quiz quiz;
+//static MySQL mysql;
 
 
 int const SCREEN_WIDTH = 1200;
@@ -46,13 +37,6 @@ TTF_Font* gFont;
 
 Text testingText;
 
-/*
-(std::string m_text, int m_xPos, int m_yPos, int m_size,
-         TTF_Font* m_font, SDL_Color m_color, SDL_Renderer* m_renderer);
-
-*/
-
-
 bool Init()
 {
 
@@ -67,7 +51,6 @@ bool Init()
     }
     else
     {
-
         //Create window
         gWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if (gWindow == NULL)
@@ -97,65 +80,11 @@ bool Init()
         success = false;
     }
     
-
-    SDL_Color color = { 0,0,0 };
+    quiz.StartQuiz("games");
+    
     testingText = Text("Andrzej Betiuk", 100, 100, 100, gFont, color, gRenderer);
 
-    /*
-    sql::mysql::MySQL_Driver* driver;
-    sql::Connection* con;
-
-    driver = sql::mysql::get_mysql_driver_instance();
-    con = driver->connect(db_host, db_user, db_password);
-    con->setSchema(db_name);
-    */
-    try {
-        sql::mysql::MySQL_Driver* driver;
-        sql::Connection* con;
-
-        // Create a MySQL driver object
-        driver = sql::mysql::get_mysql_driver_instance();
-
-        // Connect to the MySQL database
-        con = driver->connect("tcp://127.0.0.1:3306", "root", "");
-
-        // Connect to the specific database
-        con->setSchema("quizmaster");
-
-        // Create a statement
-        sql::Statement* stmt;
-        stmt = con->createStatement();
-
-        // Execute a SQL query
-        sql::ResultSet* res;
-        res = stmt->executeQuery("SELECT * FROM answers");
-
-
-        int columnCount = res->getMetaData()->getColumnCount();
-
-
-        while (res->next()) {
-            for (int i = 1; i <= columnCount; ++i) {
-                std::string columnName = res->getMetaData()->getColumnName(i);
-                std::string columnValue = res->getString(i);
-
-                std::cout << columnName << ": " << columnValue << std::endl;
-            }
-            std::cout << std::endl; // Separate rows with an empty line
-        }
-
-
-
-
-        // Clean up
-        delete res;
-        delete stmt;
-        delete con;
-
-    }
-    catch (sql::SQLException& e) {
-        std::cerr << "SQL Error: " << e.what() << std::endl;
-    }
+    //mysql.GetQuestions("");
 
 
     return success;

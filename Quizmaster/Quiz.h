@@ -20,13 +20,15 @@ class Quiz
 	Quiz();
 	~Quiz();
 
-	Question GetQuestion(int m_index);
+	void StartQuiz(std::string m_category);
+	Question* GetQuestion(int m_index);
+
 
 
 	private:
 	int correctAnswers;
 	std::vector<Question> questions;
-	MySQL mysql;
+	MySQL* mysql;
 
 
 };
