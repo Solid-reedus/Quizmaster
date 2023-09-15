@@ -6,6 +6,9 @@
 #include <cppconn/driver.h>
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
+#include "User.h"
+
+
 
 class MySQL
 {
@@ -19,11 +22,16 @@ class MySQL
 	private:
 
 	bool ConnectToDb();
+	sql::ResultSet GetQuestions(std::string m_category);
 
-	const std::string db_host = "localhost";
-	const std::string db_user = "root";
-	const std::string db_password = "";
-	const std::string db_name = "quizmaster";
+	void MakeAcount(std::string m_name, std::string m_password);
+	User GetUser(std::string m_name, std::string m_password);
+
+
+	const std::string dbHost = "localhost";
+	const std::string dbUser = "root";
+	const std::string dbPassword = "";
+	const std::string dbName = "quizmaster";
 
 	sql::mysql::MySQL_Driver* driver;
 	sql::Connection* con;

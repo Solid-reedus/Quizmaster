@@ -1,2 +1,8 @@
 ﻿  Main.cpp
-  Quizmaster.vcxproj -> C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\x64\Debug\Quizmaster.exe
+  MySQL.cpp
+  Question.cpp
+  Quiz.cpp
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Quiz.cpp(21,9): warning C4477: 'printf' : format string '% f' requires an argument of type 'double', but variadic argument 1 has type 'int'
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Quiz.cpp(22,2): error C2561: 'Quiz::GetQuestion': function must return a value
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Quiz.cpp(14,16): message : see declaration of 'Quiz::GetQuestion'
+  Generating Code...

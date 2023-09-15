@@ -6,6 +6,15 @@
 #endif
 
 
+class Answer
+{
+	Answer(std::string m_text, bool m_isTrue);
+public:
+	std::string text;
+	bool isTrue;
+	~Answer();
+};
+
 class Question
 {
 	public:
@@ -16,13 +25,6 @@ class Question
 	~Question();
 };
 
-class Answer
-{
-	Answer(std::string m_text, bool m_isTrue);
-	public:
-	std::string text;
-	bool isTrue;
-	~Answer();
-};
+
 
 #endif

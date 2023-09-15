@@ -1,5 +1,7 @@
 #include "UiHeader.h"
 #include "BaseHeader.h"
+#include "Quiz.h"
+
 
 #include <mysql_driver.h>
 #include <mysql_connection.h>
@@ -12,6 +14,8 @@ const std::string db_host = "localhost";
 const std::string db_user = "root";
 const std::string db_password = "";
 const std::string db_name = "quizmaster";
+
+static Quiz quiz;
 
 
 int const SCREEN_WIDTH = 1200;
@@ -124,7 +128,7 @@ bool Init()
 
         // Execute a SQL query
         sql::ResultSet* res;
-        res = stmt->executeQuery("SELECT * FROM answers WHERE 1");
+        res = stmt->executeQuery("SELECT * FROM answers");
 
 
         int columnCount = res->getMetaData()->getColumnCount();
