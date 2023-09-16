@@ -10,7 +10,18 @@ Quiz::Quiz()
 
 Quiz::~Quiz()
 {
+	Free();
+
+}
+
+void Quiz::Free()
+{
+	mysql->Free();
+	correctAnswers = 0;
+	questions.clear();
+	mysql = nullptr;
 	delete mysql;
+
 }
 
 void Quiz::StartQuiz(std::string m_category)

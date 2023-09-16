@@ -14,6 +14,7 @@ MySQL::MySQL()
     {
         printf("unable to connect to db \n");
     }
+
 }
 
 MySQL::~MySQL()
@@ -21,13 +22,23 @@ MySQL::~MySQL()
     Free();
 
 }
-
 void MySQL::Free()
 {
-    delete con;
-    delete driver;
+    if (con != nullptr)
+    {
+        con->close();
+        delete con;
+        con = nullptr;
+    }
+
+    if (driver != nullptr)
+    {
+        sql::mysql::get_mysql_driver_instance()->threadEnd();
+        driver = nullptr;
+    }
 
 }
+
 
 bool MySQL::ConnectToDb()
 {

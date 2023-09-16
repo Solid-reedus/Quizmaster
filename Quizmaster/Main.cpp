@@ -80,11 +80,11 @@ bool Init()
         success = false;
     }
     
-    quiz.StartQuiz("games");
+    //quiz.StartQuiz("1");
     
     testingText = Text("Andrzej Betiuk", 100, 100, 100, gFont, color, gRenderer);
 
-    //mysql.GetQuestions("");
+    quiz.StartQuiz("1");
 
 
     return success;
@@ -93,6 +93,7 @@ bool Init()
 
 void Close()
 {
+    quiz.Free();
     testingText.Free();
     //Deallocate surface
     SDL_FreeSurface(gSurface);

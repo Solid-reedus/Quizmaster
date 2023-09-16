@@ -1,8 +1,4 @@
 ﻿  Main.cpp
-  MySQL.cpp
-  Quiz.cpp
-  Generating Code...
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\MySQL.cpp(124): warning C4715: 'MySQL::GetUser': not all control paths return a value
 mysqlcppconn-static.lib(mysql_driver.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_driver.obj)' or at ''; linking object as if no debug info
 mysqlcppconn-static.lib(mysql_connection.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_connection.obj)' or at ''; linking object as if no debug info
 mysqlcppconn-static.lib(mysql_native_driver_wrapper.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_native_driver_wrapper.obj)' or at ''; linking object as if no debug info

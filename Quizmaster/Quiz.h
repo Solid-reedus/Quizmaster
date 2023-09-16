@@ -19,10 +19,10 @@ class Quiz
 	public:
 	Quiz();
 	~Quiz();
+	void Free();
 
 	void StartQuiz(std::string m_category);
 	Question* GetQuestion(int m_index);
-
 
 
 	private:
