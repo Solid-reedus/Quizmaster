@@ -6,6 +6,7 @@ Quiz::Quiz()
 	correctAnswers = 0;
 	mysql = new MySQL();
 	
+	
 }
 
 Quiz::~Quiz()
@@ -26,8 +27,7 @@ void Quiz::Free()
 
 void Quiz::StartQuiz(std::string m_category)
 {
-	//questions = *(mysql->GetQuestions(""));
-	mysql->GetQuestions(m_category);
+	questions = mysql->GetQuestions(m_category);
 }
 
 Question* Quiz::GetQuestion(int m_index)

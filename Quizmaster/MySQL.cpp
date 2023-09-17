@@ -8,11 +8,11 @@ MySQL::MySQL()
 
     if (ConnectToDb())
     {
-        printf("connected to db \n");
+        printf("connected to db \n \n");
     }
     else
     {
-        printf("unable to connect to db \n");
+        printf("unable to connect to db \n \n");
     }
 
 }
@@ -63,14 +63,18 @@ bool MySQL::ConnectToDb()
 }
 
 
-std::vector<Question>* MySQL::GetQuestions(std::string m_category)
+std::vector<Question> MySQL::GetQuestions(std::string m_category)
 {
+
+    std::vector<Question> result;
     if (!con)
     {
         printf("cannot get questions there isnt a connecttion \n");
-        return nullptr;
+        return result;
     }
 
+    //std::vector<Question>* pQuestions = new std::vector<Question>;
+    //Question(std::string m_title, std::vector<Answer> m_answers);
 
     try
     {
@@ -89,7 +93,55 @@ std::vector<Question>* MySQL::GetQuestions(std::string m_category)
         int colCount = res->getMetaData()->getColumnCount();
         int questionCount = -1;
 
-        while (res->next()) {
+
+        //get last index of pQuestions and add data
+
+        //std::vector<Answer>* pAnswers;
+
+        if (colCount > 0)
+        {
+            result.push_back(Question("", std::vector<Answer>()));
+
+        }
+
+
+
+        while (res->next()) 
+        {
+
+            //titlt
+            std::string colTitle = res->getString(1);
+            //name 
+            std::string colName = res->getString(2);
+            //is correct
+            std::string colIsCorrect = res->getString(3);
+            // question id
+            std::string colCatId = res->getString(4);
+
+            bool isCorrect = false;
+            if (colIsCorrect == "1")
+            {
+                isCorrect = true;
+            }
+
+            result.back().AddAnswer(colName, isCorrect);
+            if (std::stoi(colCatId) > questionCount)
+            {
+                questionCount = std::stoi(colCatId);
+                result.push_back(Question(colTitle, std::vector<Answer>()));
+            }
+
+            //printf("columnNameNum1 = %s \n", columnNameNum1);
+            std::cout << "\n";
+            std::cout << "\n";
+            std::cout << "columnNameNum1 = " << colTitle << "\n";
+            std::cout << "columnNameNum1 = " << colName << "\n";
+            std::cout << "columnNameNum1 = " << colIsCorrect << "\n";
+            std::cout << "columnNameNum1 = " << colCatId << "\n";
+            std::cout << "\n";
+            std::cout << "\n";
+
+            /*
             for (int i = 1; i <= colCount; ++i)
             {
 
@@ -101,19 +153,27 @@ std::vector<Question>* MySQL::GetQuestions(std::string m_category)
                 {
                     questionCount = std::stoi(columnValue);
                     printf("\n \n added new question nr %d \n \n", questionCount);
+
+                }
+                else if (true)
+                {
+                    //pQuestions->back().AddAnswer();
                 }
 
                 std::cout << columnName << ": " << columnValue << std::endl;
             }
+            */
             std::cout << std::endl; // Separate rows with an empty line
         }
+
+        //result = *pQuestions;
     }
     catch (const std::exception& e)
     {
         printf("Exception: %s\n", e.what());
     }
 
-    return nullptr;
+    return result;
 }
 
 void MySQL::MakeAcount(std::string m_name, std::string m_password)

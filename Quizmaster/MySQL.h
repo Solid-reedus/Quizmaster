@@ -26,7 +26,7 @@ class MySQL
 
 	void Free();
 
-	std::vector<Question>* GetQuestions(std::string m_category);
+	std::vector<Question> GetQuestions(std::string m_category);
 	private:
 
 	bool ConnectToDb();

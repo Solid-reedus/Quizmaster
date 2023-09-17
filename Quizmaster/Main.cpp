@@ -1,7 +1,7 @@
 #include "UiHeader.h"
 #include "BaseHeader.h"
 #include "Quiz.h"
-#include "MySQL.h"
+//#include "MySQL.h"
 
 const SDL_Color color = { 0,0,0 };
 
@@ -86,6 +86,7 @@ bool Init()
 
     quiz.StartQuiz("1");
 
+    printf("jeef");
 
     return success;
 }
