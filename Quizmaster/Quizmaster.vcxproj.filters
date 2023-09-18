@@ -25,6 +25,9 @@
     <Filter Include="Source Files\database">
       <UniqueIdentifier>{ad879edd-92b9-4beb-b930-ce8ddb2876d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\common">
+      <UniqueIdentifier>{7203c250-6858-498a-ab2f-88ff411e7558}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">

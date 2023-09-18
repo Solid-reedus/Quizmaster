@@ -73,9 +73,6 @@ std::vector<Question> MySQL::GetQuestions(std::string m_category)
         return result;
     }
 
-    //std::vector<Question>* pQuestions = new std::vector<Question>;
-    //Question(std::string m_title, std::vector<Answer> m_answers);
-
     try
     {
         // Create a statement
@@ -86,29 +83,15 @@ std::vector<Question> MySQL::GetQuestions(std::string m_category)
         sql::ResultSet* res;
 
         std::ostringstream statement;
-        statement << "SELECT questions.question_title, answer_name, answer_is_correct, answers.question_id, questions.category_id FROM answers JOIN questions ON answers.question_id = questions.question_id WHERE questions.category_id = " + m_category + " ORDER BY questions.question_id ASC;";
+        statement << "SELECT DISTINCT  questions.question_title, answer_name, answer_is_correct, answers.question_id, questions.category_id FROM answers JOIN questions ON answers.question_id = questions.question_id WHERE questions.category_id = " + m_category + " ORDER BY questions.question_id ASC;";
         //std::string statement = "SELECT questions.question_title,answer_name, answer_is_correct, answers.question_id, questions.category_id FROM answers JOIN questions ON answers.question_id = questions.question_id WHERE questions.category_id = " + m_category + " ORDER BY questions.question_id ASC;";
         res = stmt->executeQuery(statement.str());
 
         int colCount = res->getMetaData()->getColumnCount();
         int questionCount = -1;
 
-
-        //get last index of pQuestions and add data
-
-        //std::vector<Answer>* pAnswers;
-
-        if (colCount > 0)
-        {
-            result.push_back(Question("", std::vector<Answer>()));
-
-        }
-
-
-
         while (res->next()) 
         {
-
             //titlt
             std::string colTitle = res->getString(1);
             //name 
@@ -118,6 +101,12 @@ std::vector<Question> MySQL::GetQuestions(std::string m_category)
             // question id
             std::string colCatId = res->getString(4);
 
+            if (std::stoi(colCatId) > questionCount)
+            {
+                questionCount = std::stoi(colCatId);
+                result.push_back(Question(colTitle, std::vector<Answer>()));
+            }
+
             bool isCorrect = false;
             if (colIsCorrect == "1")
             {
@@ -125,48 +114,17 @@ std::vector<Question> MySQL::GetQuestions(std::string m_category)
             }
 
             result.back().AddAnswer(colName, isCorrect);
-            if (std::stoi(colCatId) > questionCount)
+
+
+            for (int i = 1; i <= colCount; ++i) 
             {
-                questionCount = std::stoi(colCatId);
-                result.push_back(Question(colTitle, std::vector<Answer>()));
+                std::string colName = res->getMetaData()->getColumnName(i);
+                std::string colVal = res->getString(i);
+
+                std::cout << colName << " : " << colVal << " \n";
             }
-
-            //printf("columnNameNum1 = %s \n", columnNameNum1);
-            std::cout << "\n";
-            std::cout << "\n";
-            std::cout << "columnNameNum1 = " << colTitle << "\n";
-            std::cout << "columnNameNum1 = " << colName << "\n";
-            std::cout << "columnNameNum1 = " << colIsCorrect << "\n";
-            std::cout << "columnNameNum1 = " << colCatId << "\n";
-            std::cout << "\n";
-            std::cout << "\n";
-
-            /*
-            for (int i = 1; i <= colCount; ++i)
-            {
-
-                std::string columnName = res->getMetaData()->getColumnName(i);
-                std::string columnValue = res->getString(i);
-                
-                if (columnName == "question_id" &&
-                    std::stoi(columnValue) > questionCount)
-                {
-                    questionCount = std::stoi(columnValue);
-                    printf("\n \n added new question nr %d \n \n", questionCount);
-
-                }
-                else if (true)
-                {
-                    //pQuestions->back().AddAnswer();
-                }
-
-                std::cout << columnName << ": " << columnValue << std::endl;
-            }
-            */
-            std::cout << std::endl; // Separate rows with an empty line
+            printf("\n \n");
         }
-
-        //result = *pQuestions;
     }
     catch (const std::exception& e)
     {

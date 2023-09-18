@@ -36,6 +36,7 @@ SDL_Surface* gSurface = NULL;
 TTF_Font* gFont;
 
 Text testingText;
+Button testButton;
 
 bool Init()
 {
@@ -83,10 +84,10 @@ bool Init()
     //quiz.StartQuiz("1");
     
     testingText = Text("Andrzej Betiuk", 100, 100, 100, gFont, color, gRenderer);
+    testButton = Button(100, 100, 200, 150, { 255,0,0 }, gRenderer);
 
     quiz.StartQuiz("1");
 
-    printf("jeef");
 
     return success;
 }
@@ -144,6 +145,8 @@ void Update()
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
         testingText.Render();
+
+        testButton.Render();
 
         //this code will display the final result
         SDL_RenderPresent(gRenderer);
