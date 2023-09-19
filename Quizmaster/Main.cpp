@@ -2,15 +2,21 @@
 #include "BaseHeader.h"
 #include "Quiz.h"
 
-//#include "MySQL.h"
+enum ProgramStates
+{
+    login = 1,
+    gameSetup = 2,
+    game = 3,
+    scoreboard = 4,
+    admin = 5
 
+};
 
-static Quiz quiz;
-//static MySQL mysql;
-
+ProgramStates programState = login;
 
 int const SCREEN_WIDTH = 1200;
 int const SCREEN_HEIGHT = 800;
+static Quiz quiz;
 
 
 // initialization function will initialize methods, values and ect 
@@ -24,28 +30,33 @@ void Close();
 // this funtion is used to update things
 void Update();
 
+void Updatelogin();
+void UpdateSetUp();
+void UpdateGame();
+void UpdateScoreboard();
+void UpdateAdmin();
+
 // SDL_Window is used to determine where the content will be rendered  
-SDL_Window* gWindow = NULL;
+SDL_Window* gWindow = nullptr;
 
 // SDL_Renderer is used to render things on to gWindow
-SDL_Renderer* gRenderer = NULL;
+SDL_Renderer* gRenderer = nullptr;
 
 //The surface contained by the window
-SDL_Surface* gSurface = NULL;
+SDL_Surface* gSurface = nullptr;
 
-TTF_Font* gFont;
+TTF_Font* gFont = nullptr;
 
 Text testingText;
+Text inputText;
+Button testButton;
 
 std::string inputString = "text: ";
-Text inputText;
 
-Button testButton;
 
 
 bool Init()
 {
-
     //Initialization flag
     bool success = true;
 
@@ -121,6 +132,50 @@ void Close()
     IMG_Quit();
 }
 
+void Updatelogin()
+{
+    SDL_Rect textRect = { 10, 10, 100, 100 };
+
+    // this method will clear the last screen so you dont see 
+    // things from the last rendered frame
+    SDL_RenderClear(gRenderer);
+
+
+
+    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+    SDL_Rect rect = { 100, 100, 200, 200 };
+    SDL_RenderDrawRect(gRenderer, &rect);
+
+
+    testButton.Render();
+    testingText.Render();
+    inputText.Render();
+
+    // this code set the background of the program to white
+    SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+}
+
+void UpdateSetUp()
+{
+
+}
+
+void UpdateGame()
+{
+
+}
+
+void UpdateScoreboard()
+{
+
+}
+
+void UpdateAdmin()
+{
+
+}
+
+
 void Update()
 {
     //Main loop flag
@@ -163,28 +218,32 @@ void Update()
             }
         }
 
-        SDL_Rect textRect = { 10, 10, 100, 100 };
+        ///////// switch //////////
 
-        // this method will clear the last screen so you dont see 
-        // things from the last rendered frame
-        SDL_RenderClear(gRenderer);
+        switch (programState)
+        {
+            case login:
+                Updatelogin();
+                break;
+            case gameSetup:
+                UpdateSetUp();
+                break;
+            case game:
+                UpdateGame();
+                break;
+            case scoreboard:
+                UpdateScoreboard();
+                break;
+                UpdateAdmin();
+            case admin:
+                break;
 
-
-
-        SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
-        SDL_Rect rect = { 100, 100, 200, 200 };
-        SDL_RenderDrawRect(gRenderer, &rect);
-
-
-        testButton.Render();
-        testingText.Render();
-        inputText.Render();
-
-        // this code set the background of the program to white
-        SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+            default:
+                break;
+        }
+        
         //this code will display the final result
         SDL_RenderPresent(gRenderer);
-
     }
 }
 

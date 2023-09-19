@@ -34,7 +34,8 @@ class MySQL
 
 	void MakeAcount(std::string m_name, std::string m_password);
 	User* GetUser(std::string m_name, std::string m_password);
-	std::string encryptCaesarCipher(const std::string& plaintext, int shift);
+	std::string encryptCaesarCipher(const std::string& m_plaintext, int m_shift);
+	bool UserExsist(std::string m_name, std::string m_password);
 
 
 	const std::string dbHost = "localhost";

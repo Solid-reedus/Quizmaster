@@ -1,6 +1,5 @@
 #include "MySQL.h"
 
-
 MySQL::MySQL()
 {
     driver = NULL;
@@ -42,7 +41,6 @@ void MySQL::Free()
 
 }
 
-
 bool MySQL::ConnectToDb()
 {
     try 
@@ -65,9 +63,9 @@ bool MySQL::ConnectToDb()
 
 }
 
-
 std::vector<Question> MySQL::GetQuestions(std::string m_category)
 {
+
 
     std::vector<Question> result;
     if (!con)
@@ -172,18 +170,27 @@ User* MySQL::GetUser(std::string m_name, std::string m_password)
         printf("cannot get users there isnt a connecttion \n");
         return nullptr;
     }
+
+    try
+    {
+
+    }
+    catch (const std::exception&)
+    {
+
+    }
 }
 
-std::string MySQL::encryptCaesarCipher(const std::string& plaintext, int shift)
+std::string MySQL::encryptCaesarCipher(const std::string& m_plaintext, int m_shift)
 {
     std::string encryptedText = "";
 
-    for (char c : plaintext) 
+    for (char c : m_plaintext)
     {
         if (isalpha(c)) 
         {
             char base = (isupper(c)) ? 'A' : 'a';
-            char shifted = static_cast<char>((c - base + shift) % 26 + base);
+            char shifted = static_cast<char>((c - base + m_shift) % 26 + base);
 
             if (shifted < base) 
             {
@@ -201,3 +208,48 @@ std::string MySQL::encryptCaesarCipher(const std::string& plaintext, int shift)
 
     return encryptedText;
 }
+
+bool MySQL::UserExsist(std::string m_name, std::string m_password)
+{
+
+    if (!con)
+    {
+        printf("cannot get questions there isnt a connecttion \n");
+        return false;
+    }
+
+    try
+    {
+        // Create a statement
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+
+        // Execute a SQL query
+        sql::ResultSet* res;
+
+        std::ostringstream statement;
+
+        std::string decriptedPassword = encryptCaesarCipher(m_password, -2);
+
+        statement << "SELECT user_name, user_password FROM `users` WHERE user_name = " + m_name + " AND user_password = " + decriptedPassword + ";";
+
+        res = stmt->executeQuery(statement.str());
+
+        if (!res->next())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQL Error: " << e.what() << std::endl;
+    }
+    return false;
+
+}
+
+
