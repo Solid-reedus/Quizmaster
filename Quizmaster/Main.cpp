@@ -36,6 +36,10 @@ SDL_Surface* gSurface = NULL;
 TTF_Font* gFont;
 
 Text testingText;
+
+std::string inputString = "text: ";
+Text inputText;
+
 Button testButton;
 
 
@@ -84,9 +88,12 @@ bool Init()
     
     
     testingText = Text("Andrzej Betiuk", 100, 100, 100, gFont, {0,0,0}, gRenderer);
+    inputText = Text(inputString, 200, 400, 50, gFont, {0,0,0}, gRenderer);
     testButton = Button(200, 500, 400, 200, { 100,100,100 }, gRenderer);
 
     quiz.StartQuiz("1");
+
+
 
     return success;
 }
@@ -96,6 +103,7 @@ void Close()
 {
     quiz.Free();
     testingText.Free();
+    inputText.Free();
     //Deallocate surface
     SDL_FreeSurface(gSurface);
     gSurface = NULL;
@@ -118,12 +126,15 @@ void Update()
     //Main loop flag
     bool quit = false;
 
+    bool pressedButton = false;
+
     //Event handler
     SDL_Event e;
 
     //While application is running
     while (!quit)
     {
+        pressedButton = false;
         //Handle events on queue
         while (SDL_PollEvent(&e) != 0)
         {
@@ -131,6 +142,24 @@ void Update()
             if (e.type == SDL_QUIT)
             {
                 quit = true;
+            }
+            if (e.key.keysym.sym >= SDLK_a && e.key.keysym.sym <= SDLK_z) 
+            {
+                char pressedKey = static_cast<char>(e.key.keysym.sym);
+                //std::cout << "Key pressed: " << pressedKey << std::endl;
+                inputString += pressedKey;
+                inputText.NewText(inputString);
+
+            }
+            else if (e.key.keysym.sym == SDLK_SPACE)
+            {
+                inputString += " ";
+                inputText.NewText(inputString);
+            }
+            else if (e.key.keysym.sym == SDLK_BACKSPACE)
+            {
+                inputString.erase(inputString.end() - 1, inputString.end());
+                inputText.NewText(inputString);
             }
         }
 
@@ -140,13 +169,19 @@ void Update()
         // things from the last rendered frame
         SDL_RenderClear(gRenderer);
 
-        // this code set the background of the program to white
-        SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
+
+        SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+        SDL_Rect rect = { 100, 100, 200, 200 };
+        SDL_RenderDrawRect(gRenderer, &rect);
 
 
         testButton.Render();
         testingText.Render();
+        inputText.Render();
 
+        // this code set the background of the program to white
+        SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         //this code will display the final result
         SDL_RenderPresent(gRenderer);
 

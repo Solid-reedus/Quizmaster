@@ -15,6 +15,8 @@ MySQL::MySQL()
         printf("unable to connect to db \n \n");
     }
 
+    //MakeAcount("jeff", "password");
+
 }
 
 MySQL::~MySQL()
@@ -141,6 +143,25 @@ void MySQL::MakeAcount(std::string m_name, std::string m_password)
     {
         printf("cannot make a new acount there isnt a connecttion \n");
         return;
+    }
+
+    try
+    {
+        std::string insertQuery = "INSERT INTO users (user_name, user_password, user_is_admin) VALUES (?, ?, ?)";
+        sql::PreparedStatement* pstmt = con->prepareStatement(insertQuery);
+
+        std::string encryptedPassword = encryptCaesarCipher(m_password, 2);
+
+        pstmt->setString(1, m_name);
+        pstmt->setString(2, encryptedPassword);
+        pstmt->setString(3, "0");
+
+        pstmt->executeUpdate();
+        delete pstmt;
+    }
+    catch (sql::SQLException& e) 
+    {
+        std::cerr << "SQL Error: " << e.what() << std::endl;
     }
 }
 

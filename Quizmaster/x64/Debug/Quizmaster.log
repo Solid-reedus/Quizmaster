@@ -1,2 +1,3 @@
-﻿  Main.cpp
+﻿  MySQL.cpp
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\MySQL.cpp(181): warning C4715: 'MySQL::GetUser': not all control paths return a value
   Quizmaster.vcxproj -> C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\x64\Debug\Quizmaster.exe
