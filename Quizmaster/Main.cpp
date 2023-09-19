@@ -1,9 +1,9 @@
 #include "UiHeader.h"
 #include "BaseHeader.h"
 #include "Quiz.h"
+
 //#include "MySQL.h"
 
-const SDL_Color color = { 0,0,0 };
 
 static Quiz quiz;
 //static MySQL mysql;
@@ -37,6 +37,7 @@ TTF_Font* gFont;
 
 Text testingText;
 Button testButton;
+
 
 bool Init()
 {
@@ -81,13 +82,11 @@ bool Init()
         success = false;
     }
     
-    //quiz.StartQuiz("1");
     
-    testingText = Text("Andrzej Betiuk", 100, 100, 100, gFont, color, gRenderer);
-    testButton = Button(100, 100, 200, 150, { 255,0,0 }, gRenderer);
+    testingText = Text("Andrzej Betiuk", 100, 100, 100, gFont, {0,0,0}, gRenderer);
+    testButton = Button(200, 500, 400, 200, { 100,100,100 }, gRenderer);
 
     quiz.StartQuiz("1");
-
 
     return success;
 }
@@ -144,9 +143,9 @@ void Update()
         // this code set the background of the program to white
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
-        testingText.Render();
 
         testButton.Render();
+        testingText.Render();
 
         //this code will display the final result
         SDL_RenderPresent(gRenderer);

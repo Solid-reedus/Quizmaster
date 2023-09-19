@@ -22,6 +22,7 @@ MySQL::~MySQL()
     Free();
 
 }
+
 void MySQL::Free()
 {
     if (con != nullptr)
@@ -150,4 +151,32 @@ User* MySQL::GetUser(std::string m_name, std::string m_password)
         printf("cannot get users there isnt a connecttion \n");
         return nullptr;
     }
+}
+
+std::string MySQL::encryptCaesarCipher(const std::string& plaintext, int shift)
+{
+    std::string encryptedText = "";
+
+    for (char c : plaintext) 
+    {
+        if (isalpha(c)) 
+        {
+            char base = (isupper(c)) ? 'A' : 'a';
+            char shifted = static_cast<char>((c - base + shift) % 26 + base);
+
+            if (shifted < base) 
+            {
+                // Wrap around if shifted character is less than the base
+                shifted += 26;
+            }
+
+            encryptedText += shifted;
+        }
+        else 
+        {
+            encryptedText += c; // Non-alphabet characters remain unchanged
+        }
+    }
+
+    return encryptedText;
 }

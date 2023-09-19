@@ -37,6 +37,16 @@ class Button : public Clickable
 
 };
 
+enum ButtonFlags
+{
+	none = 0,
+	text = 1,
+	hover = 2,
+	border = 4,
+	all = text | hover | border
+};
+
+
 
 
 #endif
