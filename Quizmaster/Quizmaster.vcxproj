@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Event.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MySQL.cpp" />
     <ClCompile Include="Question.cpp" />
@@ -153,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="BaseHeader.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="Event.h" />
     <ClInclude Include="IClickable.h" />
     <ClInclude Include="MySQL.h" />
     <ClInclude Include="Question.h" />

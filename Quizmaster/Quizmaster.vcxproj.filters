@@ -28,6 +28,9 @@
     <Filter Include="Resource Files\common">
       <UniqueIdentifier>{7203c250-6858-498a-ab2f-88ff411e7558}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\common">
+      <UniqueIdentifier>{a5a2c73a-9b42-4be2-b3c1-f15b2d8ba299}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -50,6 +53,9 @@
     </ClCompile>
     <ClCompile Include="MySQL.cpp">
       <Filter>Source Files\database</Filter>
+    </ClCompile>
+    <ClCompile Include="Event.cpp">
+      <Filter>Source Files\common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -82,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="User.h">
       <Filter>Resource Files\database</Filter>
+    </ClInclude>
+    <ClInclude Include="Event.h">
+      <Filter>Resource Files\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

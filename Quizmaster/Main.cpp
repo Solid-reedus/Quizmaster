@@ -1,6 +1,8 @@
 #include "UiHeader.h"
 #include "BaseHeader.h"
 #include "Quiz.h"
+#include "Event.h"
+
 
 enum ProgramStates
 {
@@ -51,8 +53,35 @@ Text testingText;
 Text inputText;
 Button testButton;
 
+Button optionABtn;
+Button optionBBtn;
+Button optionCBtn;
+Button optionDBtn;
+
+Button loginBtn;
+Button signUpBtn;
+
+Event testEvent;
+
+
 std::string inputString = "text: ";
 
+
+void PrintStuff()
+{
+    printf("I am stuff \n");
+}
+
+void PrintStuff2(std::string s)
+{
+    printf("I am s% \n", s);
+}
+
+void Numbers(int a, int b)
+{
+    int c = a + b;
+    printf("I am %d \n", c);
+}
 
 
 bool Init()
@@ -104,6 +133,12 @@ bool Init()
 
     quiz.StartQuiz("1");
 
+    
+    testEvent += std::bind(Numbers, 1, 1);
+    testEvent += PrintStuff;
+    testEvent += std::bind(PrintStuff2, "stuu");
+    testEvent.Invoke();
+
 
 
     return success;
@@ -138,9 +173,7 @@ void Updatelogin()
 
     // this method will clear the last screen so you dont see 
     // things from the last rendered frame
-    SDL_RenderClear(gRenderer);
-
-
+    
 
     SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
     SDL_Rect rect = { 100, 100, 200, 200 };
@@ -218,7 +251,7 @@ void Update()
             }
         }
 
-        ///////// switch //////////
+        SDL_RenderClear(gRenderer);
 
         switch (programState)
         {
