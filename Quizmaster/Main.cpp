@@ -62,6 +62,11 @@ Button loginBtn;
 Button signUpBtn;
 
 Event testEvent;
+Event clickEvent;
+
+int mouseX = 0;
+int mouseY = 0;
+
 
 
 std::string inputString = "text: ";
@@ -72,9 +77,9 @@ void PrintStuff()
     printf("I am stuff \n");
 }
 
-void PrintStuff2(std::string s)
+void PrintStuff2(const char* s)
 {
-    printf("I am s% \n", s);
+    printf("I am %s \n ", s);
 }
 
 void Numbers(int a, int b)
@@ -129,17 +134,32 @@ bool Init()
     
     testingText = Text("Andrzej Betiuk", 100, 100, 100, gFont, {0,0,0}, gRenderer);
     inputText = Text(inputString, 200, 400, 50, gFont, {0,0,0}, gRenderer);
+
+
     testButton = Button(200, 500, 400, 200, { 100,100,100 }, gRenderer);
+
+    optionABtn = Button(200, 200, 300, 150, { 200, 50,50  }, gRenderer);
+    optionBBtn = Button(650, 200, 300, 150, { 50, 200,50  }, gRenderer);
+    optionCBtn = Button(200, 450, 300, 150, { 50, 50, 200 }, gRenderer);
+    optionDBtn = Button(650, 450, 300, 150, { 200, 200,50 }, gRenderer);
+
+    optionABtn.OnClick(&mouseX, &mouseY);
+
+    clickEvent += std::bind(&Button::OnClick, &optionABtn, &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &optionBBtn, &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &optionCBtn, &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &optionDBtn, &mouseX, &mouseY);
+
+    clickEvent += std::bind(&Button::OnClick, &testButton, &mouseX, &mouseY);
+    testButton.event += [&]() {programState = ProgramStates::gameSetup;};
 
     quiz.StartQuiz("1");
 
-    
     testEvent += std::bind(Numbers, 1, 1);
     testEvent += PrintStuff;
     testEvent += std::bind(PrintStuff2, "stuu");
+
     testEvent.Invoke();
-
-
 
     return success;
 }
@@ -179,7 +199,6 @@ void Updatelogin()
     SDL_Rect rect = { 100, 100, 200, 200 };
     SDL_RenderDrawRect(gRenderer, &rect);
 
-
     testButton.Render();
     testingText.Render();
     inputText.Render();
@@ -195,6 +214,11 @@ void UpdateSetUp()
 
 void UpdateGame()
 {
+    optionABtn.Render();
+    optionBBtn.Render();
+    optionCBtn.Render();
+    optionDBtn.Render();
+
 
 }
 
@@ -226,6 +250,15 @@ void Update()
         //Handle events on queue
         while (SDL_PollEvent(&e) != 0)
         {
+            if (e.type == SDL_MOUSEBUTTONUP)
+            {
+                SDL_GetMouseState(&mouseX, &mouseY);
+                if (mouseX > 0 && mouseX < SCREEN_WIDTH &&
+                    mouseY > 0 && mouseY < SCREEN_HEIGHT)
+                {
+                    clickEvent.Invoke();
+                }
+            }
             //User requests quit
             if (e.type == SDL_QUIT)
             {
@@ -234,9 +267,9 @@ void Update()
             if (e.key.keysym.sym >= SDLK_a && e.key.keysym.sym <= SDLK_z) 
             {
                 char pressedKey = static_cast<char>(e.key.keysym.sym);
-                //std::cout << "Key pressed: " << pressedKey << std::endl;
                 inputString += pressedKey;
                 inputText.NewText(inputString);
+
 
             }
             else if (e.key.keysym.sym == SDLK_SPACE)

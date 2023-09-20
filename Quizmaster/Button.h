@@ -9,14 +9,16 @@
 #include "Text.h"
 #endif
 
+#ifndef EVENT
+#include "Event.h"
+#endif
+
 #ifndef CLICKABLE
 #include "Iclickable.h"
 #endif
 
 
-
-
-class Button : public Clickable
+class Button
 {
 	public:
 	Button();
@@ -24,7 +26,9 @@ class Button : public Clickable
 		   SDL_Color m_color, SDL_Renderer* m_renderer);
 	~Button();
 	void Render();
-	void OnClick(int x, int y) override;
+	void OnClick(int* m_x, int* m_y);
+
+	Event event;
 
 	private:
 
@@ -45,8 +49,5 @@ enum ButtonFlags
 	border = 4,
 	all = text | hover | border
 };
-
-
-
 
 #endif

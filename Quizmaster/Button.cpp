@@ -28,12 +28,13 @@ Button::~Button()
 
 }
 
-void Button::OnClick(int x, int y)
+void Button::OnClick(int* m_x, int* m_y)
 {
-	if (x > rect.x && x < rect.x + rect.w &&
-		y > rect.y && y < rect.y + rect.h)
+	if (*m_x > rect.x && *m_x < rect.x + rect.w &&
+		*m_y > rect.y && *m_y < rect.y + rect.h)
 	{
 		printf("\n clicked on clickable");
+		event.Invoke();
 	}
 }
 
