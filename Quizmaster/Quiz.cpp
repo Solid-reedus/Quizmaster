@@ -6,7 +6,6 @@ Quiz::Quiz()
 	correctAnswers = 0;
 	mysql = new MySQL();
 	
-	
 }
 
 Quiz::~Quiz()
@@ -17,7 +16,6 @@ Quiz::~Quiz()
 
 void Quiz::Free()
 {
-	mysql->Free();
 	correctAnswers = 0;
 	questions.clear();
 	mysql = nullptr;

@@ -14,3 +14,8 @@ void Event::Invoke()
         handler();
     }
 }
+
+void Event::Clear()
+{
+    handlers.clear();
+}

@@ -1,7 +1,6 @@
 #include "UiHeader.h"
 #include "BaseHeader.h"
 #include "Quiz.h"
-#include "Event.h"
 
 
 enum ProgramStates
@@ -27,16 +26,27 @@ static Quiz quiz;
 bool Init();
 
 // close function will destroy all memory that has been allocated 
-void Close();
 
+void Close();
 // this funtion is used to update things
 void Update();
 
+
+// these updates are used to update ui and other things specific to that page
 void Updatelogin();
 void UpdateSetUp();
 void UpdateGame();
 void UpdateScoreboard();
 void UpdateAdmin();
+
+// these set up functions are used to set and change events and values
+// otherwise you can for example click a button from the game page in login
+void Setlogin();
+void SetSetUp();
+void SetGame();
+void SetScoreboard();
+void SetAdmin();
+
 
 // SDL_Window is used to determine where the content will be rendered  
 SDL_Window* gWindow = nullptr;
@@ -60,6 +70,7 @@ Button optionDBtn;
 
 Button loginBtn;
 Button signUpBtn;
+TextInput testTextinput;
 
 Event testEvent;
 Event clickEvent;
@@ -135,6 +146,10 @@ bool Init()
     testingText = Text("Andrzej Betiuk", 100, 100, 100, gFont, {0,0,0}, gRenderer);
     inputText = Text(inputString, 200, 400, 50, gFont, {0,0,0}, gRenderer);
 
+    testTextinput = TextInput(500, 250, 600, 200, 
+                             { 10,10,10 }, { 1,1,1 }, 
+                             { 10,200,10 }, gRenderer, gFont);
+
 
     testButton = Button(200, 500, 400, 200, { 100,100,100 }, gRenderer);
 
@@ -143,26 +158,12 @@ bool Init()
     optionCBtn = Button(200, 450, 300, 150, { 50, 50, 200 }, gRenderer);
     optionDBtn = Button(650, 450, 300, 150, { 200, 200,50 }, gRenderer);
 
-    optionABtn.OnClick(&mouseX, &mouseY);
-
-    clickEvent += std::bind(&Button::OnClick, &optionABtn, &mouseX, &mouseY);
-    clickEvent += std::bind(&Button::OnClick, &optionBBtn, &mouseX, &mouseY);
-    clickEvent += std::bind(&Button::OnClick, &optionCBtn, &mouseX, &mouseY);
-    clickEvent += std::bind(&Button::OnClick, &optionDBtn, &mouseX, &mouseY);
-
-    clickEvent += std::bind(&Button::OnClick, &testButton, &mouseX, &mouseY);
-    testButton.event += [&]() {programState = ProgramStates::gameSetup;};
 
     quiz.StartQuiz("1");
 
-    testEvent += std::bind(Numbers, 1, 1);
-    testEvent += PrintStuff;
-    testEvent += std::bind(PrintStuff2, "stuu");
-
-    testEvent.Invoke();
-
     return success;
 }
+
 
 
 void Close()
@@ -171,6 +172,7 @@ void Close()
     testingText.Free();
     inputText.Free();
     //Deallocate surface
+
     SDL_FreeSurface(gSurface);
     gSurface = NULL;
 
@@ -181,11 +183,58 @@ void Close()
     SDL_DestroyRenderer(gRenderer);
     gRenderer = NULL;
 
+    testTextinput.Free();
+    optionABtn.Free();
+    optionBBtn.Free();
+    optionCBtn.Free();
+    optionDBtn.Free();
+    //testButton.Free();
+
     TTF_CloseFont(gFont);
 
-    SDL_Quit();
     IMG_Quit();
+    SDL_Quit();
 }
+
+void Setlogin()
+{
+    programState = login;
+    clickEvent.Clear();
+    clickEvent += std::bind(&Button::OnClick, &testButton, &mouseX, &mouseY);
+    testButton.event += SetSetUp;
+
+    /*
+    testButton.event += [&]() {programState = ProgramStates::gameSetup;};
+    */
+
+}
+void SetSetUp()
+{
+    programState = gameSetup;
+    clickEvent.Clear();
+}
+void SetGame()
+{
+    programState = game;
+    clickEvent.Clear();
+    clickEvent += std::bind(&Button::OnClick, &optionABtn, &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &optionBBtn, &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &optionCBtn, &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &optionDBtn, &mouseX, &mouseY);
+
+}
+void SetScoreboard()
+{
+    programState = scoreboard;
+    clickEvent.Clear();
+}
+void SetAdmin()
+{
+    programState = admin;
+    clickEvent.Clear();
+}
+
+
 
 void Updatelogin()
 {
@@ -193,15 +242,17 @@ void Updatelogin()
 
     // this method will clear the last screen so you dont see 
     // things from the last rendered frame
-    
 
     SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
     SDL_Rect rect = { 100, 100, 200, 200 };
     SDL_RenderDrawRect(gRenderer, &rect);
 
+    testingText.Render();
     testButton.Render();
     testingText.Render();
     inputText.Render();
+
+    testTextinput.Render();
 
     // this code set the background of the program to white
     SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -233,12 +284,16 @@ void UpdateAdmin()
 }
 
 
+
+
 void Update()
 {
     //Main loop flag
     bool quit = false;
 
     bool pressedButton = false;
+
+    Setlogin();
 
     //Event handler
     SDL_Event e;
@@ -264,23 +319,27 @@ void Update()
             {
                 quit = true;
             }
-            if (e.key.keysym.sym >= SDLK_a && e.key.keysym.sym <= SDLK_z) 
+            if (e.key.repeat == 0 && e.type == SDL_KEYDOWN)
             {
-                char pressedKey = static_cast<char>(e.key.keysym.sym);
-                inputString += pressedKey;
-                inputText.NewText(inputString);
-
-
-            }
-            else if (e.key.keysym.sym == SDLK_SPACE)
-            {
-                inputString += " ";
-                inputText.NewText(inputString);
-            }
-            else if (e.key.keysym.sym == SDLK_BACKSPACE)
-            {
-                inputString.erase(inputString.end() - 1, inputString.end());
-                inputText.NewText(inputString);
+                if (e.key.keysym.sym >= SDLK_a && e.key.keysym.sym <= SDLK_z)
+                {
+                    char pressedKey = static_cast<char>(e.key.keysym.sym);
+                    inputString += pressedKey;
+                    inputText.NewText(inputString);
+                }
+                else if (e.key.keysym.sym == SDLK_SPACE)
+                {
+                    inputString += " ";
+                    inputText.NewText(inputString);
+                }
+                else if (e.key.keysym.sym == SDLK_BACKSPACE)
+                {
+                    if (inputString.size() > 0)
+                    {
+                        inputString.erase(inputString.end() - 1, inputString.end());
+                        inputText.NewText(inputString);
+                    }
+                }
             }
         }
 
@@ -311,6 +370,7 @@ void Update()
         //this code will display the final result
         SDL_RenderPresent(gRenderer);
     }
+
 }
 
 
@@ -326,6 +386,6 @@ int main(int argc, char* args[])
     {
         Update();
     }
-
+    Close();
 	return 0;
 }

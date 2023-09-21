@@ -25,8 +25,6 @@ class MySQL
 	MySQL();
 	~MySQL();
 
-	void Free();
-
 	std::vector<Question> GetQuestions(std::string m_category);
 	private:
 

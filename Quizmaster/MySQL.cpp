@@ -20,25 +20,10 @@ MySQL::MySQL()
 
 MySQL::~MySQL()
 {
-    Free();
-
-}
-
-void MySQL::Free()
-{
-    if (con != nullptr)
-    {
-        con->close();
-        delete con;
-        con = nullptr;
-    }
-
-    if (driver != nullptr)
-    {
-        sql::mysql::get_mysql_driver_instance()->threadEnd();
-        driver = nullptr;
-    }
-
+    con->close();
+    delete con;
+    sql::mysql::get_mysql_driver_instance()->threadEnd();
+    driver = nullptr;
 }
 
 bool MySQL::ConnectToDb()

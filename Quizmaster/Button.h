@@ -13,10 +13,6 @@
 #include "Event.h"
 #endif
 
-#ifndef CLICKABLE
-#include "Iclickable.h"
-#endif
-
 
 class Button
 {
@@ -27,6 +23,7 @@ class Button
 	~Button();
 	void Render();
 	void OnClick(int* m_x, int* m_y);
+	void Free();
 
 	Event event;
 
@@ -43,11 +40,11 @@ class Button
 
 enum ButtonFlags
 {
-	none = 0,
-	text = 1,
-	hover = 2,
-	border = 4,
-	all = text | hover | border
+	noneBtn = 0,
+	textBtn = 1,
+	hoverBtn = 2,
+	borderBtn = 4,
+	allBtn = textBtn | hoverBtn | borderBtn
 };
 
 #endif

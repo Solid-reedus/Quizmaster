@@ -25,8 +25,16 @@ void Button::Render()
 
 Button::~Button()
 {
-
+	color = {};
+	rect = {};
 }
+
+void Button::Free()
+{
+	SDL_DestroyTexture(buttonTexture);
+	rect = {};
+}
+
 
 void Button::OnClick(int* m_x, int* m_y)
 {
