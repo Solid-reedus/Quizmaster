@@ -64,9 +64,15 @@ void Button::OnClick(int* m_x, int* m_y)
 	if (*m_x > rect.x && *m_x < rect.x + rect.w &&
 		*m_y > rect.y && *m_y < rect.y + rect.h)
 	{
-		printf("\n clicked on clickable");
+		printf("clicked on clickable \n");
 		event.Invoke();
 	}
+}
+
+void Button::SetColor(SDL_Color m_color)
+{
+	color = m_color;
+	UpdateTexture();
 }
 
 void Button::UpdateTexture()

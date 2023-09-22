@@ -63,6 +63,9 @@
     <ClCompile Include="User.cpp">
       <Filter>Source Files\database</Filter>
     </ClCompile>
+    <ClCompile Include="Category.cpp">
+      <Filter>Source Files\database</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseHeader.h">
@@ -96,6 +99,9 @@
       <Filter>Resource Files\common</Filter>
     </ClInclude>
     <ClInclude Include="AcountManager.h">
+      <Filter>Resource Files\database</Filter>
+    </ClInclude>
+    <ClInclude Include="Category.h">
       <Filter>Resource Files\database</Filter>
     </ClInclude>
   </ItemGroup>

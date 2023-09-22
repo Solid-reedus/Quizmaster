@@ -25,6 +25,7 @@ class Quiz
 	Question* GetQuestion(int m_index);
 	void SetMySQL(MySQL* m_mysql);
 
+
 	private:
 	int correctAnswers;
 	std::vector<Question> questions;

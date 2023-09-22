@@ -22,7 +22,11 @@ int const SCREEN_HEIGHT = 800;
 static MySQL mysql;
 static Quiz quiz;
 static AcountManager acountManager;
+static std::vector<Button> catagoryButtons;
+std::vector<Category>* catagories;
 
+
+//std::vector<Category>* MySQL::GetCategories()
 // initialization function will initialize methods, values and ect 
 // if it isnt able to initialize all of these things it will return a false
 // and will close the program
@@ -75,6 +79,9 @@ Button optionDBtn;
 
 Button loginBtn;
 Button signUpBtn;
+
+Button startGameButton;
+
 TextInput nameTextInput;
 TextInput passwordTextInput;
 
@@ -138,7 +145,7 @@ bool Init()
         success = false;
     }
 
-    gFont = TTF_OpenFont("mcFont.ttf", 36); 
+    gFont = TTF_OpenFont("mcFont.ttf", 24); 
 
     
     if (!gFont) 
@@ -149,7 +156,56 @@ bool Init()
 
     quiz.SetMySQL(&mysql);
     acountManager.SetMySQL(&mysql);
-    
+
+    catagories = mysql.GetCategories();
+
+    int catagoryXPos = -170;
+    int catagoryYPos = 200;
+
+    for (size_t i = 0; i < catagories->size(); i++)
+    {
+        int xPos, yPos;
+        if (catagoryXPos + 210 > SCREEN_WIDTH)
+        {
+            catagoryXPos = 100;
+            catagoryYPos += 150;
+        }
+        else
+        {
+            catagoryXPos += 220;
+        }
+        xPos = catagoryXPos;
+        yPos = catagoryYPos;
+
+        catagoryButtons.push_back(
+            Button(xPos, yPos, 200, 100, { 150, 150, 150 }, gRenderer));
+
+    }
+    for (size_t i = 0; i < catagories->size(); i++)
+    {
+        Button& b = catagoryButtons[i];
+        b.SetText((*catagories)[i].name, 50, gFont, { 0,0,0 });
+
+        b.event += [i, &b]() 
+        {
+            int index = i;
+            Category& c = (*catagories)[index];
+            printf("select catagory %s and index = %d \n", c.name.c_str(), index);
+
+            if (!c.isSelected)
+            {
+                c.isSelected = true;
+                b.SetColor({ 50,50,250 });
+            }
+            else
+            {
+                c.isSelected = false;
+                b.SetColor({ 150, 150, 150 });
+            }
+        };
+    }
+
+
     pageTitle = Text("welcome", SCREEN_WIDTH / 2, 50, 125, gFont, {0,0,0}, gRenderer, middle);
 
     nameTextInput = TextInput(250, 250, 650, 80, { 200,200,200 }, { 1,1,1 },
@@ -170,6 +226,8 @@ bool Init()
     optionCBtn = Button(200, 450, 300, 150, { 50, 50, 200 }, gRenderer);
     optionDBtn = Button(650, 450, 300, 150, { 200, 200,50 }, gRenderer);
 
+    startGameButton = Button(SCREEN_WIDTH / 2 - 200, SCREEN_HEIGHT - 200 , 400, 150, { 100, 220,100 }, gRenderer);
+    startGameButton.SetText("start the game", 50, gFont, { 0,0,0 });
 
     quiz.StartQuiz("1");
 
@@ -229,7 +287,6 @@ void Setlogin()
             user = localUser;
             SetSetUp();
         }
-        nameTextInput.EditText(editedText);
     };
 
     registerButton.event += [&]()
@@ -254,13 +311,30 @@ void Setlogin()
 }
 void SetSetUp()
 {
-    clickEvent.Clear();
     editedText = nullptr;
     programState = gameSetup;
     pageTitle.NewText("setup");
+    clickEvent.Clear();
 
-    //EditText
+    //clickEvent += std::bind(&Button::OnClick, &startGameButton, &mouseX, &mouseY);
+
+    clickEvent += std::bind(&Button::OnClick, &catagoryButtons[0], &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &catagoryButtons[1], &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &catagoryButtons[2], &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &catagoryButtons[3], &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &catagoryButtons[4], &mouseX, &mouseY);
+
+
+
+    //for (size_t i = 0; i < catagoryButtons.size(); i++)
+    //{
+    //    std::cout << "Button address: " << &catagoryButtons[i] << std::endl;
+    //    clickEvent += std::bind(&Button::OnClick, &catagoryButtons[i], &mouseX, &mouseY);
+    //}
+
 }
+
+
 void SetGame()
 {
     programState = game;
@@ -308,6 +382,12 @@ void Updatelogin()
 void UpdateSetUp()
 {
     pageTitle.Render();
+    startGameButton.Render();
+
+    for (Button btn : catagoryButtons)
+    {
+        btn.Render();
+    }
 }
 
 void UpdateGame()
@@ -341,7 +421,7 @@ void Update()
     bool pressedButton = false;
 
     Setlogin();
-
+    //SetSetUp();
     //Event handler
     SDL_Event e;
 
@@ -370,14 +450,12 @@ void Update()
             if (e.key.repeat == 0 && e.type == SDL_KEYDOWN && editedText != nullptr)
             {
                 std::string tempString = editedText->GetText();
-                printf("texting!!! \n");
                 if (e.key.keysym.sym >= SDLK_a && e.key.keysym.sym <= SDLK_z)
                 {
                     char pressedKey = static_cast<char>(e.key.keysym.sym);
                     tempString += pressedKey;
 
                     PrintStuff(tempString);
-                    printf("test \n");
 
                     editedText->NewText(tempString);
                 }

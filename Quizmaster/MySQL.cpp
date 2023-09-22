@@ -49,8 +49,6 @@ bool MySQL::ConnectToDb()
 
 std::vector<Question> MySQL::GetQuestions(std::string m_category)
 {
-
-
     std::vector<Question> result;
     if (!con)
     {
@@ -114,6 +112,44 @@ std::vector<Question> MySQL::GetQuestions(std::string m_category)
     }
 
     return result;
+}
+
+std::vector<Category>* MySQL::GetCategories()
+{
+
+    if (!con)
+    {
+        printf("cannot get questions there isnt a connecttion \n");
+        return nullptr;
+    }
+
+    try
+    {
+        // Create a statement
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+        // Execute a SQL query
+        sql::ResultSet* res;
+        std::ostringstream statement;
+        statement << "SELECT * FROM categories";
+        res = stmt->executeQuery(statement.str());
+
+        std::vector<Category>* result = new std::vector<Category>();
+
+        while (res->next())
+        {
+            int id = res->getInt("category_id");
+            std::string name = res->getString("category_name");
+            result->push_back(Category(id, name));
+        }
+        return result;
+    }
+    catch (const std::exception& e)
+    {
+        printf("Exception: %s\n", e.what());
+        return nullptr;
+    }
+
 }
 
 bool MySQL::UserNameIsTaken(std::string m_name)

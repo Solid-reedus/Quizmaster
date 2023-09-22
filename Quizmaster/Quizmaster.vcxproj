@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClCompile Include="AcountManager.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Category.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MySQL.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="AcountManager.h" />
     <ClInclude Include="BaseHeader.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="Category.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="MySQL.h" />
     <ClInclude Include="Question.h" />

@@ -13,6 +13,7 @@ void Event::Invoke()
     {
         if (handler)
         {
+            //std::cout << "Invoking handler: " << typeid(handler).name() << std::endl;
             handler();
         }
     }

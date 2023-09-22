@@ -16,6 +16,10 @@
 #include "Question.h"
 #endif
 
+#ifndef CATEGORY
+#include "Category.h"
+#endif
+
 #ifndef USER
 #include "User.h"
 #endif
@@ -33,10 +37,10 @@ class MySQL
 	void MakeAcount(std::string m_name, std::string m_password);
 	User* GetUser(std::string m_name, std::string m_password);
 	bool UserNameIsTaken(std::string m_name);
+	std::vector<Category>* GetCategories();
 	private:
 
 	bool ConnectToDb();
-
 	std::string encryptDecrypt(const std::string& text, char key);
 
 	const std::string dbHost = "localhost";
