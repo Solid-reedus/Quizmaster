@@ -26,7 +26,11 @@ class TextInput
 	void OnClick(int* m_x, int* m_y);
 	void Free();
 	void UseExternalText(Text* m_text);
+	void EditText(Text*& m_text);
 
+	std::string textString;
+
+	Text* text;
 	Event event;
 
 	private:
@@ -39,7 +43,6 @@ class TextInput
 	SDL_Texture* InputTexture;
 	SDL_Renderer* renderer;
 
-	Text* text;
 
 	void UpdateTexture();
 

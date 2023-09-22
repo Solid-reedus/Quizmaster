@@ -24,14 +24,13 @@ TextInput::TextInput(int m_xPos, int m_yPos, int m_height, int m_width,
 
 	renderer = m_renderer;
 	InputTexture = nullptr;
-	text = new Text("", m_xPos, m_yPos, m_height - 10, m_font, m_fontColor, renderer);
-
+	text = new Text("test", m_xPos * 1.05f, m_yPos * 1.05f, m_height * 0.1f, m_font, m_fontColor, renderer, left);
 	UpdateTexture();
 }
 
 TextInput::~TextInput()
 {
-	Free();
+	//Free();
 }
 
 void TextInput::Free()
@@ -62,7 +61,7 @@ void TextInput::OnClick(int* m_x, int* m_y)
 
 void TextInput::UpdateTexture()
 {
-
+	text->NewText(textString);
 	SDL_Surface* surf = SDL_CreateRGBSurface(0, rect.w, rect.h, 32, 0, 0, 0, 0);
 	Uint32 clr = SDL_MapRGB(surf->format, color.r, color.b, color.g);
 	SDL_FillRect(surf, NULL, clr);
@@ -70,7 +69,13 @@ void TextInput::UpdateTexture()
 	SDL_FreeSurface(surf);
 }
 
+void TextInput::EditText(Text*& m_text)
+{
+	m_text = text;
+}
+
 void TextInput::Render()
 {
 	SDL_RenderCopy(renderer, InputTexture, NULL, &rect);
+	text->Render();
 }

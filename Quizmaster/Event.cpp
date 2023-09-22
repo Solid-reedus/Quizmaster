@@ -11,7 +11,10 @@ void Event::Invoke()
 {
     for (const auto& handler : handlers) 
     {
-        handler();
+        if (handler)
+        {
+            handler();
+        }
     }
 }
 

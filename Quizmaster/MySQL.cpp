@@ -14,7 +14,6 @@ MySQL::MySQL()
         printf("unable to connect to db \n \n");
     }
 
-    //MakeAcount("jeff", "password");
 
 }
 
@@ -64,13 +63,10 @@ std::vector<Question> MySQL::GetQuestions(std::string m_category)
         // Create a statement
         sql::Statement* stmt;
         stmt = con->createStatement();
-
         // Execute a SQL query
         sql::ResultSet* res;
-
         std::ostringstream statement;
         statement << "SELECT DISTINCT  questions.question_title, answer_name, answer_is_correct, answers.question_id, questions.category_id FROM answers JOIN questions ON answers.question_id = questions.question_id WHERE questions.category_id = " + m_category + " ORDER BY questions.question_id ASC;";
-        //std::string statement = "SELECT questions.question_title,answer_name, answer_is_correct, answers.question_id, questions.category_id FROM answers JOIN questions ON answers.question_id = questions.question_id WHERE questions.category_id = " + m_category + " ORDER BY questions.question_id ASC;";
         res = stmt->executeQuery(statement.str());
 
         int colCount = res->getMetaData()->getColumnCount();
@@ -120,6 +116,50 @@ std::vector<Question> MySQL::GetQuestions(std::string m_category)
     return result;
 }
 
+bool MySQL::UserNameIsTaken(std::string m_name)
+{
+    if (!con)
+    {
+        printf("cannot get questions there isnt a connecttion \n");
+        return false;
+    }
+
+    if (m_name == "")
+    {
+        printf("name isnt filled in \n");
+    }
+
+    try
+    {
+        // Create a statement
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+
+        // Execute a SQL query
+        sql::ResultSet* res;
+
+        std::ostringstream statement;
+
+        statement << "SELECT user_name FROM users WHERE user_name = '" << m_name << "';";
+
+        res = stmt->executeQuery(statement.str());
+
+        if (!res->next())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQL Error: " << e.what() << std::endl;
+    }
+    return false;
+}
+
 void MySQL::MakeAcount(std::string m_name, std::string m_password)
 {
     if (!con)
@@ -133,7 +173,7 @@ void MySQL::MakeAcount(std::string m_name, std::string m_password)
         std::string insertQuery = "INSERT INTO users (user_name, user_password, user_is_admin) VALUES (?, ?, ?)";
         sql::PreparedStatement* pstmt = con->prepareStatement(insertQuery);
 
-        std::string encryptedPassword = encryptCaesarCipher(m_password, 2);
+        std::string encryptedPassword = encryptDecrypt(m_password, 1);
 
         pstmt->setString(1, m_name);
         pstmt->setString(2, encryptedPassword);
@@ -158,40 +198,48 @@ User* MySQL::GetUser(std::string m_name, std::string m_password)
 
     try
     {
+        std::string password = encryptDecrypt(m_password, 1);
 
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+        // Execute a SQL query
+        sql::ResultSet* res;
+        std::ostringstream statement;
+        statement << "SELECT user_name, user_score FROM users WHERE user_name = '" << m_name << "' AND user_password = '" << password << "';";
+        //statement << "SELECT user_name,user_score FROM users WHERE user_name = "+ m_name +" AND user_password = "+ password +";";
+        res = stmt->executeQuery(statement.str());
+
+        User* user = nullptr;
+
+        if (res->next())
+        {
+            //res->getString("name_column_name");
+            user = new User(res->getString("user_name"), res->getInt("user_score"));
+        }
+        else
+        {
+            printf("result for user is empty");
+        }
+
+        delete res;
+        delete stmt;
+
+        return user;
+        //SELECT * FROM users WHERE user_name = "jeff" AND user_password = "rcuuyqtf";
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
-
+        std::cerr << "SQL Error: " << e.what() << std::endl;
     }
 }
 
-std::string MySQL::encryptCaesarCipher(const std::string& m_plaintext, int m_shift)
+std::string MySQL::encryptDecrypt(const std::string& text, char key)
 {
-    std::string encryptedText = "";
-
-    for (char c : m_plaintext)
-    {
-        if (isalpha(c)) 
-        {
-            char base = (isupper(c)) ? 'A' : 'a';
-            char shifted = static_cast<char>((c - base + m_shift) % 26 + base);
-
-            if (shifted < base) 
-            {
-                // Wrap around if shifted character is less than the base
-                shifted += 26;
-            }
-
-            encryptedText += shifted;
-        }
-        else 
-        {
-            encryptedText += c; // Non-alphabet characters remain unchanged
-        }
+    std::string result = text;
+    for (char& character : result) {
+        character ^= key;
     }
-
-    return encryptedText;
+    return result;
 }
 
 bool MySQL::UserExsist(std::string m_name, std::string m_password)
@@ -201,6 +249,11 @@ bool MySQL::UserExsist(std::string m_name, std::string m_password)
     {
         printf("cannot get questions there isnt a connecttion \n");
         return false;
+    }
+
+    if (m_name == "" || m_password == "")
+    {
+        printf("name and password arent filled in \n");
     }
 
     try
@@ -214,9 +267,9 @@ bool MySQL::UserExsist(std::string m_name, std::string m_password)
 
         std::ostringstream statement;
 
-        std::string decriptedPassword = encryptCaesarCipher(m_password, -2);
+        std::string decriptedPassword = encryptDecrypt(m_password, 1);
 
-        statement << "SELECT user_name, user_password FROM `users` WHERE user_name = " + m_name + " AND user_password = " + decriptedPassword + ";";
+        statement << "SELECT user_name, user_password FROM users WHERE user_name = '" << m_name << "' AND user_password = '" << decriptedPassword << "';";
 
         res = stmt->executeQuery(statement.str());
 

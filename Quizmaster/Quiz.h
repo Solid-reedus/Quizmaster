@@ -3,9 +3,9 @@
 
 #include "Question.h"
 
-//#ifdef MYSQL
-//#endif
+#ifndef MYSQL
 #include "MySQL.h"
+#endif
 
 
 #ifndef BASE_HEADER
@@ -23,7 +23,7 @@ class Quiz
 
 	void StartQuiz(std::string m_category);
 	Question* GetQuestion(int m_index);
-
+	void SetMySQL(MySQL* m_mysql);
 
 	private:
 	int correctAnswers;

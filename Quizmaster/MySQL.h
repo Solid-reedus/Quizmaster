@@ -16,6 +16,9 @@
 #include "Question.h"
 #endif
 
+#ifndef USER
+#include "User.h"
+#endif
 
 
 class MySQL
@@ -26,15 +29,15 @@ class MySQL
 	~MySQL();
 
 	std::vector<Question> GetQuestions(std::string m_category);
+	bool UserExsist(std::string m_name, std::string m_password);
+	void MakeAcount(std::string m_name, std::string m_password);
+	User* GetUser(std::string m_name, std::string m_password);
+	bool UserNameIsTaken(std::string m_name);
 	private:
 
 	bool ConnectToDb();
 
-	void MakeAcount(std::string m_name, std::string m_password);
-	User* GetUser(std::string m_name, std::string m_password);
-	std::string encryptCaesarCipher(const std::string& m_plaintext, int m_shift);
-	bool UserExsist(std::string m_name, std::string m_password);
-
+	std::string encryptDecrypt(const std::string& text, char key);
 
 	const std::string dbHost = "localhost";
 	const std::string dbUser = "root";

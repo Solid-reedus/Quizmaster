@@ -10,12 +10,14 @@ Text::Text()
 	size = 0;
 	font = 0;
 	color = {0,0,0};
+	alignment = unset;
 	textTexture = nullptr;
 	renderer = nullptr;
+
 }
 
 Text::Text(std::string m_text, int m_xPos, int m_yPos, int m_size,
-		   TTF_Font* m_font, SDL_Color m_color, SDL_Renderer* m_renderer)
+	TTF_Font* m_font, SDL_Color m_color, SDL_Renderer* m_renderer, Alignment m_alignment)
 {
 	text = m_text;
 	xPos = m_xPos;
@@ -23,8 +25,10 @@ Text::Text(std::string m_text, int m_xPos, int m_yPos, int m_size,
 	size = m_size;
 	font = m_font;
 	color = m_color;
+	maxWidth = NULL;
 	textTexture = nullptr;
 	renderer = m_renderer;
+	alignment = m_alignment;
 }
 
 void Text::Render()
@@ -34,7 +38,33 @@ void Text::Render()
 		UpdateTexture();
 	}
 
-	SDL_Rect textRect = { xPos, yPos, text.length() * size / 2, size};
+	int xPosition = xPos;
+
+	int width;
+	if (maxWidth == NULL || text.length() * size / 2 < maxWidth)
+	{
+		width = text.length()* size / 2;
+	}
+	else
+	{
+		width = maxWidth;
+	}
+
+	switch (alignment)
+	{
+
+		case middle:
+			xPosition = xPos - width / 2;
+			break;
+		case right:
+			xPosition = xPos + width;
+			break;
+		case left:
+		default:
+			break;
+	}
+
+	SDL_Rect textRect = { xPosition, yPos, width, size};
 
 	SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
 }
@@ -47,14 +77,25 @@ void Text::UpdateTexture()
 
 void Text::NewText(std::string m_text)
 {
+	printf("changed text \n");
 	text = m_text;
 	UpdateTexture();
+}
+
+std::string Text::GetText()
+{
+	return text;
 }
 
 void Text::NewColor(SDL_Color m_color)
 {
 	color = m_color;
 	UpdateTexture();
+}
+
+void Text::SetMaxWidth(int m_width)
+{
+	maxWidth = m_width;
 }
 
 void Text::Free()

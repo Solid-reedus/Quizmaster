@@ -57,15 +57,18 @@
     <ClCompile Include="Event.cpp">
       <Filter>Source Files\common</Filter>
     </ClCompile>
+    <ClCompile Include="AcountManager.cpp">
+      <Filter>Source Files\database</Filter>
+    </ClCompile>
+    <ClCompile Include="User.cpp">
+      <Filter>Source Files\database</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseHeader.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
-      <Filter>Resource Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="IClickable.h">
       <Filter>Resource Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="Text.h">
@@ -91,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="Event.h">
       <Filter>Resource Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="AcountManager.h">
+      <Filter>Resource Files\database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

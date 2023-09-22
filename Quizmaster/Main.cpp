@@ -1,6 +1,7 @@
 #include "UiHeader.h"
 #include "BaseHeader.h"
 #include "Quiz.h"
+#include "AcountManager.h"
 
 
 enum ProgramStates
@@ -17,8 +18,10 @@ ProgramStates programState = login;
 
 int const SCREEN_WIDTH = 1200;
 int const SCREEN_HEIGHT = 800;
-static Quiz quiz;
 
+static MySQL mysql;
+static Quiz quiz;
+static AcountManager acountManager;
 
 // initialization function will initialize methods, values and ect 
 // if it isnt able to initialize all of these things it will return a false
@@ -59,9 +62,11 @@ SDL_Surface* gSurface = nullptr;
 
 TTF_Font* gFont = nullptr;
 
-Text testingText;
-Text inputText;
-Button testButton;
+User user;
+
+Text pageTitle;
+Button loginButton;
+Button registerButton;
 
 Button optionABtn;
 Button optionBBtn;
@@ -70,7 +75,8 @@ Button optionDBtn;
 
 Button loginBtn;
 Button signUpBtn;
-TextInput testTextinput;
+TextInput nameTextInput;
+TextInput passwordTextInput;
 
 Event testEvent;
 Event clickEvent;
@@ -78,19 +84,12 @@ Event clickEvent;
 int mouseX = 0;
 int mouseY = 0;
 
+Text* editedText = nullptr;
 
 
-std::string inputString = "text: ";
-
-
-void PrintStuff()
+void PrintStuff(std::string s)
 {
-    printf("I am stuff \n");
-}
-
-void PrintStuff2(const char* s)
-{
-    printf("I am %s \n ", s);
+    printf("I am %s \n ", s.c_str());
 }
 
 void Numbers(int a, int b)
@@ -99,9 +98,15 @@ void Numbers(int a, int b)
     printf("I am %d \n", c);
 }
 
+void ReplaceMemoryLocation(int*& ptr1, int*& ptr2) 
+{
+    ptr1 = ptr2;
+}
+
 
 bool Init()
 {
+
     //Initialization flag
     bool success = true;
 
@@ -141,17 +146,24 @@ bool Init()
         printf("gFont is indefined");
         success = false;
     }
-    
-    
-    testingText = Text("Andrzej Betiuk", 100, 100, 100, gFont, {0,0,0}, gRenderer);
-    inputText = Text(inputString, 200, 400, 50, gFont, {0,0,0}, gRenderer);
 
-    testTextinput = TextInput(500, 250, 600, 200, 
-                             { 10,10,10 }, { 1,1,1 }, 
+    quiz.SetMySQL(&mysql);
+    acountManager.SetMySQL(&mysql);
+    
+    pageTitle = Text("welcome", SCREEN_WIDTH / 2, 50, 125, gFont, {0,0,0}, gRenderer, middle);
+
+    nameTextInput = TextInput(250, 250, 650, 80, { 200,200,200 }, { 1,1,1 },
                              { 10,200,10 }, gRenderer, gFont);
+    nameTextInput.text->SetMaxWidth(630);
 
+    passwordTextInput = TextInput(250, 400, 650, 80,{ 200,200,200 }, { 1,1,1 },
+                                 { 10,200,10 }, gRenderer, gFont);
+    passwordTextInput.text->SetMaxWidth(630);
 
-    testButton = Button(200, 500, 400, 200, { 100,100,100 }, gRenderer);
+    loginButton = Button(250, 550, 300, 150, { 100,100,100 }, gRenderer);
+    registerButton = Button(600, 550, 300, 150, { 100,100,100 }, gRenderer);
+    loginButton.SetText("login", 60, gFont, {255, 255 , 255 });
+    registerButton.SetText("register", 60, gFont, {255, 255 , 255 });
 
     optionABtn = Button(200, 200, 300, 150, { 200, 50,50  }, gRenderer);
     optionBBtn = Button(650, 200, 300, 150, { 50, 200,50  }, gRenderer);
@@ -169,8 +181,6 @@ bool Init()
 void Close()
 {
     quiz.Free();
-    testingText.Free();
-    inputText.Free();
     //Deallocate surface
 
     SDL_FreeSurface(gSurface);
@@ -183,12 +193,12 @@ void Close()
     SDL_DestroyRenderer(gRenderer);
     gRenderer = NULL;
 
-    testTextinput.Free();
+    nameTextInput.Free();
+    pageTitle.Free();
     optionABtn.Free();
     optionBBtn.Free();
     optionCBtn.Free();
     optionDBtn.Free();
-    //testButton.Free();
 
     TTF_CloseFont(gFont);
 
@@ -196,27 +206,66 @@ void Close()
     SDL_Quit();
 }
 
+
 void Setlogin()
 {
     programState = login;
     clickEvent.Clear();
-    clickEvent += std::bind(&Button::OnClick, &testButton, &mouseX, &mouseY);
-    testButton.event += SetSetUp;
+    pageTitle.NewText("login");
 
-    /*
-    testButton.event += [&]() {programState = ProgramStates::gameSetup;};
-    */
+    clickEvent += std::bind(&Button::OnClick, &loginButton, &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &registerButton, &mouseX, &mouseY);
 
+    loginButton.event += [&]() 
+    {
+        std::string name = nameTextInput.text->GetText();
+        std::string password = passwordTextInput.text->GetText();
+
+        printf("name = %s and password = %s \n ", name.c_str(), password.c_str());
+        if (acountManager.UserExsist(name, password))
+        {
+            printf("user exisit \n ");
+            User localUser = *acountManager.GetUser(name, password);
+            user = localUser;
+            SetSetUp();
+        }
+        nameTextInput.EditText(editedText);
+    };
+
+    registerButton.event += [&]()
+    {
+        std::string name = nameTextInput.text->GetText();
+        std::string password = passwordTextInput.text->GetText();
+        if (!acountManager.UserNameIsTaken(name))
+        {
+            acountManager.MakeNewUser(name, password);
+            User localUser = *acountManager.GetUser(name, password);
+            user = localUser;
+            SetSetUp();
+        }
+    };
+
+    clickEvent += std::bind(&TextInput::OnClick, &nameTextInput, &mouseX, &mouseY);
+    clickEvent += std::bind(&TextInput::OnClick, &passwordTextInput, &mouseX, &mouseY);
+
+    nameTextInput.event += [&]() {nameTextInput.EditText(editedText);};
+    passwordTextInput.event += [&]() {passwordTextInput.EditText(editedText);};
+    
 }
 void SetSetUp()
 {
-    programState = gameSetup;
     clickEvent.Clear();
+    editedText = nullptr;
+    programState = gameSetup;
+    pageTitle.NewText("setup");
+
+    //EditText
 }
 void SetGame()
 {
     programState = game;
     clickEvent.Clear();
+    pageTitle.NewText("game");
     clickEvent += std::bind(&Button::OnClick, &optionABtn, &mouseX, &mouseY);
     clickEvent += std::bind(&Button::OnClick, &optionBBtn, &mouseX, &mouseY);
     clickEvent += std::bind(&Button::OnClick, &optionCBtn, &mouseX, &mouseY);
@@ -225,11 +274,13 @@ void SetGame()
 }
 void SetScoreboard()
 {
+    pageTitle.NewText("scoreboard");
     programState = scoreboard;
     clickEvent.Clear();
 }
 void SetAdmin()
 {
+    pageTitle.NewText("admin");
     programState = admin;
     clickEvent.Clear();
 }
@@ -238,21 +289,17 @@ void SetAdmin()
 
 void Updatelogin()
 {
-    SDL_Rect textRect = { 10, 10, 100, 100 };
 
     // this method will clear the last screen so you dont see 
     // things from the last rendered frame
 
-    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
-    SDL_Rect rect = { 100, 100, 200, 200 };
-    SDL_RenderDrawRect(gRenderer, &rect);
+    loginButton.Render();
+    registerButton.Render();
 
-    testingText.Render();
-    testButton.Render();
-    testingText.Render();
-    inputText.Render();
+    pageTitle.Render();
 
-    testTextinput.Render();
+    nameTextInput.Render();
+    passwordTextInput.Render();
 
     // this code set the background of the program to white
     SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -260,7 +307,7 @@ void Updatelogin()
 
 void UpdateSetUp()
 {
-
+    pageTitle.Render();
 }
 
 void UpdateGame()
@@ -269,18 +316,18 @@ void UpdateGame()
     optionBBtn.Render();
     optionCBtn.Render();
     optionDBtn.Render();
-
+    pageTitle.Render();
 
 }
 
 void UpdateScoreboard()
 {
-
+    pageTitle.Render();
 }
 
 void UpdateAdmin()
 {
-
+    pageTitle.Render();
 }
 
 
@@ -319,25 +366,32 @@ void Update()
             {
                 quit = true;
             }
-            if (e.key.repeat == 0 && e.type == SDL_KEYDOWN)
+            //nameTextInput.event.Invoke();
+            if (e.key.repeat == 0 && e.type == SDL_KEYDOWN && editedText != nullptr)
             {
+                std::string tempString = editedText->GetText();
+                printf("texting!!! \n");
                 if (e.key.keysym.sym >= SDLK_a && e.key.keysym.sym <= SDLK_z)
                 {
                     char pressedKey = static_cast<char>(e.key.keysym.sym);
-                    inputString += pressedKey;
-                    inputText.NewText(inputString);
+                    tempString += pressedKey;
+
+                    PrintStuff(tempString);
+                    printf("test \n");
+
+                    editedText->NewText(tempString);
                 }
                 else if (e.key.keysym.sym == SDLK_SPACE)
                 {
-                    inputString += " ";
-                    inputText.NewText(inputString);
+                    tempString += " ";
+                    editedText->NewText(tempString);
                 }
                 else if (e.key.keysym.sym == SDLK_BACKSPACE)
                 {
-                    if (inputString.size() > 0)
+                    if (tempString.size() > 0)
                     {
-                        inputString.erase(inputString.end() - 1, inputString.end());
-                        inputText.NewText(inputString);
+                        tempString.erase(tempString.end() - 1, tempString.end());
+                        editedText->NewText(tempString);
                     }
                 }
             }
