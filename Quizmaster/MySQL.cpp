@@ -47,7 +47,9 @@ bool MySQL::ConnectToDb()
 
 }
 
-std::vector<Question> MySQL::GetQuestions(std::string m_category)
+
+
+std::vector<Question> MySQL::GetQuestions(std::vector<Category>* m_categories, int m_amount)
 {
     std::vector<Question> result;
     if (!con)
@@ -55,16 +57,64 @@ std::vector<Question> MySQL::GetQuestions(std::string m_category)
         printf("cannot get questions there isnt a connecttion \n");
         return result;
     }
+    if (m_categories->empty())
+    {
+        printf("m_categories empty unable to return anything \n");
+        return result;
+    }
 
     try
     {
+
+        std::string categories = "";
+        for (Category cat : *m_categories)
+        {
+            if (cat.isSelected)
+            {
+                categories = categories + " " + std::to_string(cat.id) + ",";
+            }
+        }
+        categories.pop_back();
+        
         // Create a statement
         sql::Statement* stmt;
         stmt = con->createStatement();
         // Execute a SQL query
         sql::ResultSet* res;
+        //std::ostringstream statement;
+
+        /*
+                SELECT
+            questions.question_title,
+            answers.answer_name,
+            answers.answer_is_correct,
+            questions.question_id,
+            questions.category_id
+        FROM
+            (
+                SELECT
+                    question_id
+                FROM
+                    questions
+                WHERE
+                    category_id IN (1, 3)
+                ORDER BY
+                    RAND()
+                LIMIT 10
+            ) AS random_questions
+        JOIN
+            questions ON random_questions.question_id = questions.question_id
+        JOIN
+            answers ON questions.question_id = answers.question_id;
+        
+        */
+
         std::ostringstream statement;
-        statement << "SELECT DISTINCT  questions.question_title, answer_name, answer_is_correct, answers.question_id, questions.category_id FROM answers JOIN questions ON answers.question_id = questions.question_id WHERE questions.category_id = " + m_category + " ORDER BY questions.question_id ASC;";
+        statement << "SELECT questions.question_title, answers.answer_name, answers.answer_is_correct, questions.question_id, questions.category_id "
+            << "FROM (SELECT question_id FROM questions WHERE category_id IN (" << categories << ") ORDER BY RAND() LIMIT " << std::to_string(m_amount) << ") AS random_questions "
+            << "JOIN questions ON random_questions.question_id = questions.question_id "
+            << "JOIN answers ON questions.question_id = answers.question_id;";
+
         res = stmt->executeQuery(statement.str());
 
         int colCount = res->getMetaData()->getColumnCount();

@@ -9,11 +9,22 @@ void Event::operator+=(const EventHandler& handler)
 
 void Event::Invoke()
 {
-    for (const auto& handler : handlers) 
+    for (const auto& handler : handlers)
     {
         if (handler)
         {
-            //std::cout << "Invoking handler: " << typeid(handler).name() << std::endl;
+            handler();
+        }
+    }
+}
+
+void Event::InvokeCopy()
+{
+    std::vector<EventHandler> h = handlers;
+    for (const auto& handler : h)
+    {
+        if (handler)
+        {
             handler();
         }
     }

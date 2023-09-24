@@ -11,7 +11,6 @@ enum ProgramStates
     game = 3,
     scoreboard = 4,
     admin = 5
-
 };
 
 ProgramStates programState = login;
@@ -69,6 +68,7 @@ TTF_Font* gFont = nullptr;
 User user;
 
 Text pageTitle;
+Text QuestionText;
 Button loginButton;
 Button registerButton;
 
@@ -85,11 +85,11 @@ Button startGameButton;
 TextInput nameTextInput;
 TextInput passwordTextInput;
 
-Event testEvent;
 Event clickEvent;
 
 int mouseX = 0;
 int mouseY = 0;
+int CurrentScore = 0;
 
 Text* editedText = nullptr;
 
@@ -207,6 +207,7 @@ bool Init()
 
 
     pageTitle = Text("welcome", SCREEN_WIDTH / 2, 50, 125, gFont, {0,0,0}, gRenderer, middle);
+    QuestionText = Text("n/a", SCREEN_WIDTH / 2, 225, 75, gFont, {0,0,0}, gRenderer, middle);
 
     nameTextInput = TextInput(250, 250, 650, 80, { 200,200,200 }, { 1,1,1 },
                              { 10,200,10 }, gRenderer, gFont);
@@ -221,15 +222,15 @@ bool Init()
     loginButton.SetText("login", 60, gFont, {255, 255 , 255 });
     registerButton.SetText("register", 60, gFont, {255, 255 , 255 });
 
-    optionABtn = Button(200, 200, 300, 150, { 200, 50,50  }, gRenderer);
-    optionBBtn = Button(650, 200, 300, 150, { 50, 200,50  }, gRenderer);
-    optionCBtn = Button(200, 450, 300, 150, { 50, 50, 200 }, gRenderer);
-    optionDBtn = Button(650, 450, 300, 150, { 200, 200,50 }, gRenderer);
+    optionABtn = Button(SCREEN_WIDTH / 2 - 575, 350, 550, 200, { 200, 50,50  }, gRenderer);
+    optionBBtn = Button(SCREEN_WIDTH / 2 + 25, 350, 550, 200, { 50, 200,50  }, gRenderer);
+    optionCBtn = Button(SCREEN_WIDTH / 2 - 575, 575, 550, 200, { 50, 50, 200 }, gRenderer);
+    optionDBtn = Button(SCREEN_WIDTH / 2 + 25, 575, 550, 200, { 200, 200,50 }, gRenderer);
 
     startGameButton = Button(SCREEN_WIDTH / 2 - 200, SCREEN_HEIGHT - 200 , 400, 150, { 100, 220,100 }, gRenderer);
     startGameButton.SetText("start the game", 50, gFont, { 0,0,0 });
 
-    quiz.StartQuiz("1");
+    //quiz.StartQuiz(catagories);
 
     return success;
 }
@@ -316,24 +317,40 @@ void SetSetUp()
     pageTitle.NewText("setup");
     clickEvent.Clear();
 
-    //clickEvent += std::bind(&Button::OnClick, &startGameButton, &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &startGameButton, &mouseX, &mouseY);
+    startGameButton.event += [&]()
+    {
+        bool atleastSelected = false;
+        for (Category cat : *catagories)
+        {
+            if (cat.isSelected)
+            {
+                atleastSelected = true;
+            }
+        }
+        if (!atleastSelected)
+        {
+            return;
+        }
 
-    clickEvent += std::bind(&Button::OnClick, &catagoryButtons[0], &mouseX, &mouseY);
-    clickEvent += std::bind(&Button::OnClick, &catagoryButtons[1], &mouseX, &mouseY);
-    clickEvent += std::bind(&Button::OnClick, &catagoryButtons[2], &mouseX, &mouseY);
-    clickEvent += std::bind(&Button::OnClick, &catagoryButtons[3], &mouseX, &mouseY);
-    clickEvent += std::bind(&Button::OnClick, &catagoryButtons[4], &mouseX, &mouseY);
+        std::vector<Category>& cats = *catagories;
+        quiz.StartQuiz(&cats, 10);
+        SetGame();
+    };
 
-
-
-    //for (size_t i = 0; i < catagoryButtons.size(); i++)
-    //{
-    //    std::cout << "Button address: " << &catagoryButtons[i] << std::endl;
-    //    clickEvent += std::bind(&Button::OnClick, &catagoryButtons[i], &mouseX, &mouseY);
-    //}
+    for (size_t i = 0; i < catagoryButtons.size(); i++)
+    {
+        std::cout << "Button address: " << &catagoryButtons[i] << std::endl;
+        clickEvent += std::bind(&Button::OnClick, &catagoryButtons[i], &mouseX, &mouseY);
+    }
 
 }
 
+
+void NewQuestion()
+{
+
+}
 
 void SetGame()
 {
@@ -344,6 +361,16 @@ void SetGame()
     clickEvent += std::bind(&Button::OnClick, &optionBBtn, &mouseX, &mouseY);
     clickEvent += std::bind(&Button::OnClick, &optionCBtn, &mouseX, &mouseY);
     clickEvent += std::bind(&Button::OnClick, &optionDBtn, &mouseX, &mouseY);
+
+    optionABtn.event += [&]() 
+    {
+
+    };
+
+    optionABtn.SetText("A", 75, gFont, {255,255,255});
+    optionBBtn.SetText("B", 75, gFont, {255,255,255});
+    optionCBtn.SetText("C", 75, gFont, {255,255,255});
+    optionDBtn.SetText("D", 75, gFont, {255,255,255});
 
 }
 void SetScoreboard()
@@ -397,6 +424,7 @@ void UpdateGame()
     optionCBtn.Render();
     optionDBtn.Render();
     pageTitle.Render();
+    QuestionText.Render();
 
 }
 
@@ -438,7 +466,7 @@ void Update()
                 if (mouseX > 0 && mouseX < SCREEN_WIDTH &&
                     mouseY > 0 && mouseY < SCREEN_HEIGHT)
                 {
-                    clickEvent.Invoke();
+                    clickEvent.InvokeCopy();
                 }
             }
             //User requests quit

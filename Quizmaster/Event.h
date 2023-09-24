@@ -15,6 +15,7 @@ class Event
 
     void operator+=(const EventHandler& handler);
 	void Invoke();
+	void InvokeCopy();
 	void Clear();
 
 	private:

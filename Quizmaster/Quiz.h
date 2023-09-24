@@ -21,7 +21,7 @@ class Quiz
 	~Quiz();
 	void Free();
 
-	void StartQuiz(std::string m_category);
+	void StartQuiz(std::vector<Category>* m_categories, int m_amount);
 	Question* GetQuestion(int m_index);
 	void SetMySQL(MySQL* m_mysql);
 

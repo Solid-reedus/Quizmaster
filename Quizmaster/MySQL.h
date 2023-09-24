@@ -32,7 +32,7 @@ class MySQL
 	MySQL();
 	~MySQL();
 
-	std::vector<Question> GetQuestions(std::string m_category);
+	std::vector<Question> GetQuestions(std::vector<Category>* m_categories, int m_amount);
 	bool UserExsist(std::string m_name, std::string m_password);
 	void MakeAcount(std::string m_name, std::string m_password);
 	User* GetUser(std::string m_name, std::string m_password);

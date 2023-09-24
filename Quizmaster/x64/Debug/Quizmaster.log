@@ -1,2 +1,3 @@
-﻿  Event.cpp
+﻿  Main.cpp
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(204,9): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   Quizmaster.vcxproj -> C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\x64\Debug\Quizmaster.exe
