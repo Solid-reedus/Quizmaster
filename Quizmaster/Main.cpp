@@ -2,6 +2,9 @@
 #include "BaseHeader.h"
 #include "Quiz.h"
 #include "AcountManager.h"
+#include <cstdlib>
+#include <ctime>
+
 
 
 enum ProgramStates
@@ -22,7 +25,11 @@ static MySQL mysql;
 static Quiz quiz;
 static AcountManager acountManager;
 static std::vector<Button> catagoryButtons;
+static std::vector<Button> answerButtons;
+
+
 std::vector<Category>* catagories;
+
 
 
 //std::vector<Category>* MySQL::GetCategories()
@@ -72,10 +79,6 @@ Text QuestionText;
 Button loginButton;
 Button registerButton;
 
-Button optionABtn;
-Button optionBBtn;
-Button optionCBtn;
-Button optionDBtn;
 
 Button loginBtn;
 Button signUpBtn;
@@ -109,6 +112,19 @@ void ReplaceMemoryLocation(int*& ptr1, int*& ptr2)
 {
     ptr1 = ptr2;
 }
+
+int getRandomNumber(int m_min, int m_max) 
+{
+
+    // Seed the random number generator
+   
+
+    // Generate the random number within the specified range
+    int randomNumber = m_min + std::rand() % (m_max - m_min + 1);
+
+    return randomNumber;
+}
+
 
 
 bool Init()
@@ -158,6 +174,7 @@ bool Init()
     acountManager.SetMySQL(&mysql);
 
     catagories = mysql.GetCategories();
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
     int catagoryXPos = -170;
     int catagoryYPos = 200;
@@ -206,8 +223,9 @@ bool Init()
     }
 
 
-    pageTitle = Text("welcome", SCREEN_WIDTH / 2, 50, 125, gFont, {0,0,0}, gRenderer, middle);
-    QuestionText = Text("n/a", SCREEN_WIDTH / 2, 225, 75, gFont, {0,0,0}, gRenderer, middle);
+    pageTitle = Text("welcome", SCREEN_WIDTH / 2, 25, 125, gFont, {0,0,0}, gRenderer, middle);
+    QuestionText = Text("n/a", SCREEN_WIDTH / 2, 150, 50, gFont, {0,0,0}, gRenderer, middle);
+    QuestionText.SetMaxWidth(SCREEN_WIDTH - 250);
 
     nameTextInput = TextInput(250, 250, 650, 80, { 200,200,200 }, { 1,1,1 },
                              { 10,200,10 }, gRenderer, gFont);
@@ -222,15 +240,8 @@ bool Init()
     loginButton.SetText("login", 60, gFont, {255, 255 , 255 });
     registerButton.SetText("register", 60, gFont, {255, 255 , 255 });
 
-    optionABtn = Button(SCREEN_WIDTH / 2 - 575, 350, 550, 200, { 200, 50,50  }, gRenderer);
-    optionBBtn = Button(SCREEN_WIDTH / 2 + 25, 350, 550, 200, { 50, 200,50  }, gRenderer);
-    optionCBtn = Button(SCREEN_WIDTH / 2 - 575, 575, 550, 200, { 50, 50, 200 }, gRenderer);
-    optionDBtn = Button(SCREEN_WIDTH / 2 + 25, 575, 550, 200, { 200, 200,50 }, gRenderer);
-
     startGameButton = Button(SCREEN_WIDTH / 2 - 200, SCREEN_HEIGHT - 200 , 400, 150, { 100, 220,100 }, gRenderer);
     startGameButton.SetText("start the game", 50, gFont, { 0,0,0 });
-
-    //quiz.StartQuiz(catagories);
 
     return success;
 }
@@ -254,10 +265,6 @@ void Close()
 
     nameTextInput.Free();
     pageTitle.Free();
-    optionABtn.Free();
-    optionBBtn.Free();
-    optionCBtn.Free();
-    optionDBtn.Free();
 
     TTF_CloseFont(gFont);
 
@@ -343,13 +350,51 @@ void SetSetUp()
         std::cout << "Button address: " << &catagoryButtons[i] << std::endl;
         clickEvent += std::bind(&Button::OnClick, &catagoryButtons[i], &mouseX, &mouseY);
     }
-
 }
 
 
-void NewQuestion()
-{
 
+
+
+void NewQuestion(int m_index)
+{
+    answerButtons.clear();
+    int x = 0;
+    int y = 0;
+    int rows = std::ceil(quiz.GetQuestion(m_index)->answers.size() / 2);
+
+    for (Answer a : quiz.GetQuestion(m_index)->answers)
+    {
+        x++;
+
+        int height = 500 / rows;
+
+        if (x % 3 == 0)
+        {
+            y++;
+        }
+
+        int yPos = (SCREEN_HEIGHT - (height + 20) * y) - (height + 20);
+
+        int xPos;
+        if (x % 2 == 1)
+        {
+            xPos = SCREEN_WIDTH / 2 - 500;
+        }
+        else
+        {
+            xPos = SCREEN_WIDTH / 2 + 50;
+        }
+
+        int r = getRandomNumber(75, 255);
+        int g = getRandomNumber(75, 255);
+        int b = getRandomNumber(75, 255);
+
+        SDL_Color c = { r,g,b };
+        answerButtons.push_back(Button(xPos, yPos, 500, height, c , gRenderer));
+        answerButtons.back().SetText(a.text, height / 4, gFont, { 0,0,0 });
+        answerButtons.back().SetTextMaxWidth(450);
+    }
 }
 
 void SetGame()
@@ -357,20 +402,13 @@ void SetGame()
     programState = game;
     clickEvent.Clear();
     pageTitle.NewText("game");
-    clickEvent += std::bind(&Button::OnClick, &optionABtn, &mouseX, &mouseY);
-    clickEvent += std::bind(&Button::OnClick, &optionBBtn, &mouseX, &mouseY);
-    clickEvent += std::bind(&Button::OnClick, &optionCBtn, &mouseX, &mouseY);
-    clickEvent += std::bind(&Button::OnClick, &optionDBtn, &mouseX, &mouseY);
 
-    optionABtn.event += [&]() 
-    {
+    std::vector<std::vector<int>> a;
 
-    };
+    std::vector<Answer> answers;
 
-    optionABtn.SetText("A", 75, gFont, {255,255,255});
-    optionBBtn.SetText("B", 75, gFont, {255,255,255});
-    optionCBtn.SetText("C", 75, gFont, {255,255,255});
-    optionDBtn.SetText("D", 75, gFont, {255,255,255});
+    QuestionText.NewText(quiz.GetQuestion(0)->title);
+    NewQuestion(0);
 
 }
 void SetScoreboard()
@@ -419,12 +457,14 @@ void UpdateSetUp()
 
 void UpdateGame()
 {
-    optionABtn.Render();
-    optionBBtn.Render();
-    optionCBtn.Render();
-    optionDBtn.Render();
     pageTitle.Render();
     QuestionText.Render();
+
+    //catagoryButtons
+    for (Button btn : answerButtons)
+    {
+        btn.Render();
+    }
 
 }
 

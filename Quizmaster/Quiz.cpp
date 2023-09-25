@@ -28,6 +28,7 @@ void Quiz::SetMySQL(MySQL* m_mysql)
 	mysql = m_mysql;
 }
 
+
 void Quiz::StartQuiz(std::vector<Category>* m_categories, int m_amount)
 {
 	if (mysql != nullptr)

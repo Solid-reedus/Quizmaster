@@ -1,3 +1,7 @@
 ﻿  Main.cpp
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(204,9): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(222,9): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(367,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(396,25): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(396,27): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(396,29): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
   Quizmaster.vcxproj -> C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\x64\Debug\Quizmaster.exe

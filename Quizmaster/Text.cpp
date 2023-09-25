@@ -40,10 +40,11 @@ void Text::Render()
 
 	int xPosition = xPos;
 
+
 	int width;
 	if (maxWidth == NULL || text.length() * size / 2 < maxWidth)
 	{
-		width = text.length()* size / 2;
+		width = text.length() * size / 2;
 	}
 	else
 	{
@@ -52,7 +53,6 @@ void Text::Render()
 
 	switch (alignment)
 	{
-
 		case middle:
 			xPosition = xPos - width / 2;
 			break;
@@ -64,6 +64,8 @@ void Text::Render()
 			break;
 	}
 
+
+
 	SDL_Rect textRect = { xPosition, yPos, width, size};
 
 	SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
@@ -71,7 +73,16 @@ void Text::Render()
 
 void Text::UpdateTexture()
 {
-	SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), color); // Replace text and color as needed
+	SDL_Surface* textSurface;
+	if (maxWidth == NULL)
+	{
+		textSurface = TTF_RenderText_Solid(font, text.c_str(), color); // Replace text and color as needed
+	}
+	else
+	{
+		textSurface = TTF_RenderText_Blended_Wrapped(font, text.c_str(), color, maxWidth); // Replace text and color as needed
+	}
+
     textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 }
 

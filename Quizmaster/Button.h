@@ -27,6 +27,7 @@ class Button
 	void SetText(std::string m_text, int m_size, TTF_Font* m_font, SDL_Color m_color);
 	void ChangeText(std::string m_text);
 	void SetColor(SDL_Color m_color);
+	void SetTextMaxWidth(int m_width);
 
 	Event event;
 

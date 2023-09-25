@@ -9,10 +9,10 @@ Button::Button()
 	text = nullptr;
 }
 
-Button::Button(int m_xPos, int m_yPos, int m_height, int m_width, 
+Button::Button(int m_xPos, int m_yPos, int m_width, int m_height,
 			   SDL_Color m_color, SDL_Renderer* m_renderer)
 {
-	rect = { m_xPos, m_yPos, m_height, m_width };
+	rect = { m_xPos, m_yPos, m_width, m_height };
 	color = m_color;
 	renderer = m_renderer;
 	buttonTexture = nullptr;
@@ -45,6 +45,11 @@ void Button::Free()
 void Button::SetText(std::string m_text, int m_size, TTF_Font* m_font, SDL_Color m_color)
 {
 	text = new Text(m_text, rect.x + rect.w / 2, rect.y + rect.h / 3, m_size, m_font, m_color, renderer, middle);
+}
+
+void Button::SetTextMaxWidth(int m_width)
+{
+	text->SetMaxWidth(m_width);
 }
 
 void Button::ChangeText(std::string m_text)
