@@ -37,6 +37,7 @@ class MySQL
 	void MakeAcount(std::string m_name, std::string m_password);
 	User* GetUser(std::string m_name, std::string m_password);
 	bool UserNameIsTaken(std::string m_name);
+	bool HasEnoughQuestions(std::vector<Category>* m_categories, int m_count);
 	std::vector<Category>* GetCategories();
 	private:
 

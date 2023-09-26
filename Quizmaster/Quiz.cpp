@@ -41,6 +41,16 @@ void Quiz::StartQuiz(std::vector<Category>* m_categories, int m_amount)
 	}
 }
 
+bool Quiz::HasEnoughQuestions(std::vector<Category>* m_categories, int m_count)
+{
+	return mysql->HasEnoughQuestions(m_categories, m_count);
+}
+
+int Quiz::GetQuestionCount()
+{
+	return questions.size();
+}
+
 Question* Quiz::GetQuestion(int m_index)
 {
 	if (m_index < questions.size())

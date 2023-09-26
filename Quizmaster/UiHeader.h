@@ -4,6 +4,6 @@
 #include "Text.h"
 #include "Button.h"
 #include "TextInput.h"
-
+#include "Icon.h"
 
 #endif

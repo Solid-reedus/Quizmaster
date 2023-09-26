@@ -47,6 +47,66 @@ bool MySQL::ConnectToDb()
 
 }
 
+bool MySQL::HasEnoughQuestions(std::vector<Category>* m_categories, int m_count)
+{
+    if (!con)
+    {
+        printf("cannot get questions there isnt a connecttion \n");
+        return false;
+    }
+    if (m_categories->empty())
+    {
+        printf("m_categories empty unable to check for questions \n");
+        return false;
+    }
+
+    try
+    {
+
+        std::string categories = "";
+        for (Category cat : *m_categories)
+        {
+            if (cat.isSelected)
+            {
+                categories = categories + " " + std::to_string(cat.id) + ",";
+            }
+        }
+        categories.pop_back();
+
+
+
+        // Create a statement
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+        // Execute a SQL query
+        sql::ResultSet* res;
+        std::ostringstream statement;
+        statement << "SELECT question_id FROM questions WHERE category_id IN (" << categories << ")";
+        res = stmt->executeQuery(statement.str());
+
+        int count = 0;
+
+        while (res->next())
+        {
+            count++;
+        }
+
+        if (count >= m_count)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    catch (const std::exception& e)
+    {
+        printf("Exception: %s\n", e.what());
+        return false;
+    }
+
+}
 
 
 std::vector<Question> MySQL::GetQuestions(std::vector<Category>* m_categories, int m_amount)
@@ -113,7 +173,8 @@ std::vector<Question> MySQL::GetQuestions(std::vector<Category>* m_categories, i
         statement << "SELECT questions.question_title, answers.answer_name, answers.answer_is_correct, questions.question_id, questions.category_id "
             << "FROM (SELECT question_id FROM questions WHERE category_id IN (" << categories << ") ORDER BY RAND() LIMIT " << std::to_string(m_amount) << ") AS random_questions "
             << "JOIN questions ON random_questions.question_id = questions.question_id "
-            << "JOIN answers ON questions.question_id = answers.question_id;";
+            << "JOIN answers ON questions.question_id = answers.question_id "
+            << "ORDER BY questions.question_id;";
 
         res = stmt->executeQuery(statement.str());
 

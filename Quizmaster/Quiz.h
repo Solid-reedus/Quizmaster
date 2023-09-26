@@ -25,12 +25,12 @@ class Quiz
 	void StartQuiz(std::vector<Category>* m_categories, int m_amount);
 	Question* GetQuestion(int m_index);
 	void SetMySQL(MySQL* m_mysql);
+	int GetQuestionCount();
+	bool HasEnoughQuestions(std::vector<Category>* m_categories, int m_count);
 
 	private:
 	int correctAnswers;
 	std::vector<Question> questions;
-	//std::vector<Question>* questions;
-	//std::vector<Button> questionButtons;
 	MySQL* mysql;
 
 

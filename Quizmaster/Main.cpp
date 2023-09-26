@@ -5,8 +5,6 @@
 #include <cstdlib>
 #include <ctime>
 
-
-
 enum ProgramStates
 {
     login = 1,
@@ -27,10 +25,7 @@ static AcountManager acountManager;
 static std::vector<Button> catagoryButtons;
 static std::vector<Button> answerButtons;
 
-
 std::vector<Category>* catagories;
-
-
 
 //std::vector<Category>* MySQL::GetCategories()
 // initialization function will initialize methods, values and ect 
@@ -74,39 +69,65 @@ TTF_Font* gFont = nullptr;
 
 User user;
 
+// multiple text classes
 Text pageTitle;
 Text QuestionText;
+Text scoreText;
+Text timeText;
+Text difficultyText;
+Text warningText;
+Text nameInputText;
+Text passwordInputText;
+
+// button classes
 Button loginButton;
 Button registerButton;
 
-
 Button loginBtn;
 Button signUpBtn;
+
+Button increaseTime;
+Button decreaseTime;
 
 Button startGameButton;
 
 TextInput nameTextInput;
 TextInput passwordTextInput;
 
+// this event is used to invoke all Onclick
+//
 Event clickEvent;
+
+int difficulty[7][2] =
+{
+    // 5 questions - 10 sec
+    {5, 20},
+    {10, 30},
+    {15, 45},
+    {30, 500},
+    {50, 30},
+    {75, 45},
+    {100, 60}
+};
+
+int difficultyIndex = 0;
 
 int mouseX = 0;
 int mouseY = 0;
+
 int CurrentScore = 0;
+int questionIndex = 0;
+int questionTotal = 0;
+
+int countdownTime = 0;
+int startTime = 0;
+int elapsedTime = 0;
+int currentTime = 0;
 
 Text* editedText = nullptr;
 
 
-void PrintStuff(std::string s)
-{
-    printf("I am %s \n ", s.c_str());
-}
 
-void Numbers(int a, int b)
-{
-    int c = a + b;
-    printf("I am %d \n", c);
-}
 
 void ReplaceMemoryLocation(int*& ptr1, int*& ptr2) 
 {
@@ -117,7 +138,6 @@ int getRandomNumber(int m_min, int m_max)
 {
 
     // Seed the random number generator
-   
 
     // Generate the random number within the specified range
     int randomNumber = m_min + std::rand() % (m_max - m_min + 1);
@@ -142,7 +162,7 @@ bool Init()
     else
     {
         //Create window
-        gWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        gWindow = SDL_CreateWindow("quiz master", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if (gWindow == NULL)
         {
             printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -154,6 +174,14 @@ bool Init()
             gSurface = SDL_GetWindowSurface(gWindow);
         }
     }
+
+    int imgFlags = IMG_INIT_PNG;
+    if (!(IMG_Init(imgFlags) & imgFlags))
+    {
+        printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+        success = false;
+    }
+
 
     if (TTF_Init() == -1) 
     {
@@ -174,6 +202,8 @@ bool Init()
     acountManager.SetMySQL(&mysql);
 
     catagories = mysql.GetCategories();
+
+    // this code will generate a random seed so the program can use random numbers
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
     int catagoryXPos = -170;
@@ -182,10 +212,10 @@ bool Init()
     for (size_t i = 0; i < catagories->size(); i++)
     {
         int xPos, yPos;
-        if (catagoryXPos + 210 > SCREEN_WIDTH)
+        if (catagoryXPos + 300 > SCREEN_WIDTH)
         {
-            catagoryXPos = 100;
-            catagoryYPos += 150;
+            catagoryXPos = 50;
+            catagoryYPos += 125;
         }
         else
         {
@@ -222,10 +252,25 @@ bool Init()
         };
     }
 
+    increaseTime = Button(SCREEN_WIDTH - 625, SCREEN_HEIGHT - 175, 100, 100, { 255, 255,255 }, gRenderer);
+    decreaseTime = Button(0, SCREEN_HEIGHT - 175, 100, 100, { 255, 255,255 }, gRenderer);
+    increaseTime.SetIcon(loadTexture("arrow.png", gRenderer), 90);
+    decreaseTime.SetIcon(loadTexture("arrow.png", gRenderer), -90);
 
-    pageTitle = Text("welcome", SCREEN_WIDTH / 2, 25, 125, gFont, {0,0,0}, gRenderer, middle);
+    pageTitle = Text("welcome", SCREEN_WIDTH / 2, 15, 125, gFont, {0,0,0}, gRenderer, middle);
     QuestionText = Text("n/a", SCREEN_WIDTH / 2, 150, 50, gFont, {0,0,0}, gRenderer, middle);
     QuestionText.SetMaxWidth(SCREEN_WIDTH - 250);
+
+    scoreText = Text("n/a", SCREEN_WIDTH - 275, 40, 75, gFont, {0,0,0}, gRenderer, middle);
+    timeText = Text("time:", 125, 40, 75, gFont, {0,0,0}, gRenderer, left);
+
+    difficultyText = Text("n/a", 325, SCREEN_HEIGHT - 150, 40, gFont, {0,0,0}, gRenderer, middle);
+    warningText = Text("warning:", SCREEN_WIDTH / 2, 125, 50, gFont, {250,50,50}, gRenderer, middle);
+
+    nameInputText = Text("name:", SCREEN_WIDTH / 2, 200, 50, gFont, {0,0,0}, gRenderer, middle);
+    passwordInputText = Text("password:", SCREEN_WIDTH / 2, 350, 50, gFont, {0,0,0}, gRenderer, middle);
+
+
 
     nameTextInput = TextInput(250, 250, 650, 80, { 200,200,200 }, { 1,1,1 },
                              { 10,200,10 }, gRenderer, gFont);
@@ -240,7 +285,7 @@ bool Init()
     loginButton.SetText("login", 60, gFont, {255, 255 , 255 });
     registerButton.SetText("register", 60, gFont, {255, 255 , 255 });
 
-    startGameButton = Button(SCREEN_WIDTH / 2 - 200, SCREEN_HEIGHT - 200 , 400, 150, { 100, 220,100 }, gRenderer);
+    startGameButton = Button(SCREEN_WIDTH - 450, SCREEN_HEIGHT - 200 , 400, 150, { 100, 220,100 }, gRenderer);
     startGameButton.SetText("start the game", 50, gFont, { 0,0,0 });
 
     return success;
@@ -324,6 +369,29 @@ void SetSetUp()
     pageTitle.NewText("setup");
     clickEvent.Clear();
 
+    clickEvent += std::bind(&Button::OnClick, &decreaseTime, &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &increaseTime, &mouseX, &mouseY);
+
+    decreaseTime.event += [&]()
+    {
+        if (difficultyIndex > 0)
+        {
+            difficultyIndex--;
+        }
+        difficultyText.NewText("questions:" + std::to_string(difficulty[difficultyIndex][0]) + " time:" + std::to_string(difficulty[difficultyIndex][1]));
+    };
+
+    increaseTime.event += [&]()
+    {
+        if (difficultyIndex < 6)
+        {
+            difficultyIndex++;
+        }
+        difficultyText.NewText("questions:" + std::to_string(difficulty[difficultyIndex][0]) + " time:" + std::to_string(difficulty[difficultyIndex][1]));
+    };
+
+    difficultyText.NewText("questions:" + std::to_string(difficulty[difficultyIndex][0]) + " time:" + std::to_string(difficulty[difficultyIndex][1]));
+
     clickEvent += std::bind(&Button::OnClick, &startGameButton, &mouseX, &mouseY);
     startGameButton.event += [&]()
     {
@@ -339,9 +407,14 @@ void SetSetUp()
         {
             return;
         }
+        if (!quiz.HasEnoughQuestions(catagories, difficulty[difficultyIndex][0]))
+        {
+            printf("not enough questions to start the quiz");
+            return;
+        }
 
         std::vector<Category>& cats = *catagories;
-        quiz.StartQuiz(&cats, 10);
+        quiz.StartQuiz(&cats, difficulty[difficultyIndex][0]);
         SetGame();
     };
 
@@ -353,12 +426,10 @@ void SetSetUp()
 }
 
 
-
-
-
 void NewQuestion(int m_index)
 {
     answerButtons.clear();
+    clickEvent.Clear();
     int x = 0;
     int y = 0;
     int rows = std::ceil(quiz.GetQuestion(m_index)->answers.size() / 2);
@@ -394,22 +465,49 @@ void NewQuestion(int m_index)
         answerButtons.push_back(Button(xPos, yPos, 500, height, c , gRenderer));
         answerButtons.back().SetText(a.text, height / 4, gFont, { 0,0,0 });
         answerButtons.back().SetTextMaxWidth(450);
+
+        answerButtons.back().event += [a]()
+        {
+            questionIndex++;
+            printf("new questionIndex =  %d \n", questionIndex);
+            if (a.isTrue)
+            {
+                printf("answer was correct \n");
+                CurrentScore++;
+                scoreText.NewText("score:" + std::to_string(CurrentScore * 10));
+            }
+            if (questionIndex >= questionTotal)
+            {
+                SetScoreboard();
+            }
+            else
+            {
+                NewQuestion(questionIndex);
+            }
+        };
     }
+    for (Button btn : answerButtons)
+    {
+        clickEvent += std::bind(&Button::OnClick, *&btn, &mouseX, &mouseY);
+    }
+
+    QuestionText.NewText(quiz.GetQuestion(m_index)->title);
 }
 
 void SetGame()
 {
     programState = game;
     clickEvent.Clear();
-    pageTitle.NewText("game");
-
-    std::vector<std::vector<int>> a;
+    scoreText.NewText("score:00");
+    questionTotal = quiz.GetQuestionCount();
 
     std::vector<Answer> answers;
 
     QuestionText.NewText(quiz.GetQuestion(0)->title);
     NewQuestion(0);
-
+    startTime = SDL_GetTicks() / 1000;
+    //difficulty
+    countdownTime = difficulty[difficultyIndex][1];
 }
 void SetScoreboard()
 {
@@ -429,15 +527,16 @@ void SetAdmin()
 void Updatelogin()
 {
 
-    // this method will clear the last screen so you dont see 
-    // things from the last rendered frame
-
     loginButton.Render();
     registerButton.Render();
 
-    pageTitle.Render();
 
+    pageTitle.Render();
+    warningText.Render();
+
+    nameInputText.Render();
     nameTextInput.Render();
+    passwordInputText.Render();
     passwordTextInput.Render();
 
     // this code set the background of the program to white
@@ -446,6 +545,11 @@ void Updatelogin()
 
 void UpdateSetUp()
 {
+    //arrowTexture.Render();
+    increaseTime.Render();
+    decreaseTime.Render();
+    difficultyText.Render();
+
     pageTitle.Render();
     startGameButton.Render();
 
@@ -457,8 +561,19 @@ void UpdateSetUp()
 
 void UpdateGame()
 {
-    pageTitle.Render();
     QuestionText.Render();
+    scoreText.Render();
+
+
+    currentTime = SDL_GetTicks() / 1000;
+    elapsedTime = currentTime - startTime;
+    if (countdownTime - elapsedTime < 1)
+    {
+        SetScoreboard();
+    }
+
+    timeText.NewText("time:" + std::to_string(countdownTime - elapsedTime));
+    timeText.Render();
 
     //catagoryButtons
     for (Button btn : answerButtons)
@@ -522,8 +637,6 @@ void Update()
                 {
                     char pressedKey = static_cast<char>(e.key.keysym.sym);
                     tempString += pressedKey;
-
-                    PrintStuff(tempString);
 
                     editedText->NewText(tempString);
                 }

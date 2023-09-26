@@ -146,6 +146,7 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Category.cpp" />
     <ClCompile Include="Event.cpp" />
+    <ClCompile Include="Icon.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MySQL.cpp" />
     <ClCompile Include="Question.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="Category.h" />
     <ClInclude Include="Event.h" />
+    <ClInclude Include="Icon.h" />
     <ClInclude Include="MySQL.h" />
     <ClInclude Include="Question.h" />
     <ClInclude Include="Quiz.h" />

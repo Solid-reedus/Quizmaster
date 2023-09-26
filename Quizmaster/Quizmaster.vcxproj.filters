@@ -66,6 +66,9 @@
     <ClCompile Include="Category.cpp">
       <Filter>Source Files\database</Filter>
     </ClCompile>
+    <ClCompile Include="Icon.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseHeader.h">
@@ -103,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="Category.h">
       <Filter>Resource Files\database</Filter>
+    </ClInclude>
+    <ClInclude Include="Icon.h">
+      <Filter>Resource Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

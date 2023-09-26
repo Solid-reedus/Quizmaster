@@ -7,6 +7,7 @@ Button::Button()
 	renderer = nullptr;
 	buttonTexture = nullptr;
 	text = nullptr;
+	icon = nullptr;
 }
 
 Button::Button(int m_xPos, int m_yPos, int m_width, int m_height,
@@ -17,6 +18,7 @@ Button::Button(int m_xPos, int m_yPos, int m_width, int m_height,
 	renderer = m_renderer;
 	buttonTexture = nullptr;
 	text = nullptr;
+	icon = nullptr;
 	UpdateTexture();
 }
 
@@ -26,6 +28,10 @@ void Button::Render()
 	if (text)
 	{
 		text->Render();
+	}
+	if (icon)
+	{
+		icon->Render();
 	}
 }
 
@@ -39,12 +45,36 @@ void Button::Free()
 {
 	SDL_DestroyTexture(buttonTexture);
 	delete text;
+	delete icon;
 	rect = {};
 }
 
 void Button::SetText(std::string m_text, int m_size, TTF_Font* m_font, SDL_Color m_color)
 {
-	text = new Text(m_text, rect.x + rect.w / 2, rect.y + rect.h / 3, m_size, m_font, m_color, renderer, middle);
+	if (icon == nullptr)
+	{
+		text = new Text(m_text, rect.x + rect.w / 2, rect.y + rect.h / 3, m_size, m_font, m_color, renderer, middle);
+	}
+	else
+	{
+		printf("button has already a icon, unable to set text \n");
+	}
+}
+
+void Button::SetIcon(SDL_Texture* m_texture, float m_angle)
+{
+	if (text == nullptr)
+	{
+		icon = new Icon(rect.x, rect.y, rect.h, rect.w, renderer, m_angle);
+		if (m_texture != nullptr)
+		{
+			icon->SetTexture(m_texture);
+		}
+	}
+	else
+	{
+		printf("button has already a text, unable to set icon \n");
+	}
 }
 
 void Button::SetTextMaxWidth(int m_width)

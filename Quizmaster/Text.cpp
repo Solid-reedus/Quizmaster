@@ -88,7 +88,6 @@ void Text::UpdateTexture()
 
 void Text::NewText(std::string m_text)
 {
-	printf("changed text \n");
 	text = m_text;
 	UpdateTexture();
 }

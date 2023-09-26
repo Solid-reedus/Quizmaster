@@ -13,6 +13,10 @@
 #include "Event.h"
 #endif
 
+#ifndef ICON
+#include "Icon.h"
+#endif
+
 
 class Button
 {
@@ -25,6 +29,7 @@ class Button
 	void OnClick(int* m_x, int* m_y);
 	void Free();
 	void SetText(std::string m_text, int m_size, TTF_Font* m_font, SDL_Color m_color);
+	void SetIcon(SDL_Texture* m_texture = nullptr, float m_angle = NULL);
 	void ChangeText(std::string m_text);
 	void SetColor(SDL_Color m_color);
 	void SetTextMaxWidth(int m_width);
@@ -39,6 +44,7 @@ class Button
 	private:
 
 	Text* text;
+	Icon* icon;
 	SDL_Rect rect;
 	SDL_Color color;
 	SDL_Texture* buttonTexture;
@@ -46,15 +52,6 @@ class Button
 
 	void UpdateTexture();
 
-};
-
-enum ButtonFlags
-{
-	noneBtn = 0,
-	textBtn = 1,
-	hoverBtn = 2,
-	borderBtn = 4,
-	allBtn = textBtn | hoverBtn | borderBtn
 };
 
 #endif
