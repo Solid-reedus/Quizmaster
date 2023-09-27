@@ -1,3 +1,7 @@
-﻿  MySQL.cpp
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\MySQL.cpp(381): warning C4715: 'MySQL::GetUser': not all control paths return a value
+﻿  Main.cpp
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(249,9): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(438,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(467,25): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(467,27): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(467,29): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
   Quizmaster.vcxproj -> C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\x64\Debug\Quizmaster.exe

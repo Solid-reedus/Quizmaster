@@ -94,8 +94,8 @@ Button startGameButton;
 TextInput nameTextInput;
 TextInput passwordTextInput;
 
-// this event is used to invoke all Onclick
-//
+// this event is used to invoke all Onclick events
+// Onclick is used to invoke all events that a button ot textInput has
 Event clickEvent;
 
 int difficulty[7][2] =
@@ -104,14 +104,17 @@ int difficulty[7][2] =
     {5, 20},
     {10, 30},
     {15, 45},
-    {30, 500},
-    {50, 30},
-    {75, 45},
-    {100, 60}
+    {30, 60},
+    {50, 75},
+    {75, 90},
+    {100, 120}
 };
 
+// this keeps track of what difficulty is selected
 int difficultyIndex = 0;
 
+// these values are used as positions for the clickable classes to
+// check if its clicked 
 int mouseX = 0;
 int mouseY = 0;
 
@@ -124,32 +127,22 @@ int startTime = 0;
 int elapsedTime = 0;
 int currentTime = 0;
 
+// this text is used to intercact with a textInput and the main event in the 
+// update loop
 Text* editedText = nullptr;
 
-
-
-
-void ReplaceMemoryLocation(int*& ptr1, int*& ptr2) 
-{
-    ptr1 = ptr2;
-}
-
+// this is a shortend way to generate a random number
 int getRandomNumber(int m_min, int m_max) 
 {
-
-    // Seed the random number generator
-
-    // Generate the random number within the specified range
     int randomNumber = m_min + std::rand() % (m_max - m_min + 1);
-
     return randomNumber;
 }
 
-
-
+// this function is used to check, initialize and define everything
+// before starting the program, if something is worng the program will
+// stop with a error
 bool Init()
 {
-
     //Initialization flag
     bool success = true;
 
@@ -175,6 +168,7 @@ bool Init()
         }
     }
 
+    // this code checks if the SDL_image lib is functioning correctly
     int imgFlags = IMG_INIT_PNG;
     if (!(IMG_Init(imgFlags) & imgFlags))
     {
@@ -182,29 +176,32 @@ bool Init()
         success = false;
     }
 
-
+    // this code checks if the TTF_OpenFont lib is functioning correctly
     if (TTF_Init() == -1) 
     {
         printf("TTF_OpenFont failed! TTF_Error: %s\n", TTF_GetError());
         success = false;
     }
 
+    // defines global font 
     gFont = TTF_OpenFont("mcFont.ttf", 24); 
 
-    
     if (!gFont) 
     {
         printf("gFont is indefined");
         success = false;
     }
 
+    // here multiple things get defined
     quiz.SetMySQL(&mysql);
     acountManager.SetMySQL(&mysql);
-
     catagories = mysql.GetCategories();
 
     // this code will generate a random seed so the program can use random numbers
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+    #pragma region catagory pos init
+    
 
     int catagoryXPos = -170;
     int catagoryYPos = 200;
@@ -252,6 +249,10 @@ bool Init()
         };
     }
 
+    #pragma endregion button init
+    
+    #pragma region button init
+
     increaseTime = Button(SCREEN_WIDTH - 625, SCREEN_HEIGHT - 175, 100, 100, { 255, 255,255 }, gRenderer);
     decreaseTime = Button(0, SCREEN_HEIGHT - 175, 100, 100, { 255, 255,255 }, gRenderer);
     increaseTime.SetIcon(loadTexture("arrow.png", gRenderer), 90);
@@ -270,8 +271,6 @@ bool Init()
     nameInputText = Text("name:", SCREEN_WIDTH / 2, 200, 50, gFont, {0,0,0}, gRenderer, middle);
     passwordInputText = Text("password:", SCREEN_WIDTH / 2, 350, 50, gFont, {0,0,0}, gRenderer, middle);
 
-
-
     nameTextInput = TextInput(250, 250, 650, 80, { 200,200,200 }, { 1,1,1 },
                              { 10,200,10 }, gRenderer, gFont);
     nameTextInput.text->SetMaxWidth(630);
@@ -288,20 +287,22 @@ bool Init()
     startGameButton = Button(SCREEN_WIDTH - 450, SCREEN_HEIGHT - 200 , 400, 150, { 100, 220,100 }, gRenderer);
     startGameButton.SetText("start the game", 50, gFont, { 0,0,0 });
 
+    
+    #pragma endregion button init
+
     return success;
 }
 
 
-
+// this function will delete and clear all memory 
+// this funtion is used when exiting the program
 void Close()
 {
     quiz.Free();
-    //Deallocate surface
 
     SDL_FreeSurface(gSurface);
     gSurface = NULL;
 
-    //Destroy window
     SDL_DestroyWindow(gWindow);
     gWindow = NULL;
 
@@ -316,6 +317,7 @@ void Close()
     IMG_Quit();
     SDL_Quit();
 }
+
 
 
 void Setlogin()
@@ -598,17 +600,12 @@ void UpdateAdmin()
 
 void Update()
 {
-    //Main loop flag
     bool quit = false;
-
     bool pressedButton = false;
 
     Setlogin();
-    //SetSetUp();
-    //Event handler
     SDL_Event e;
 
-    //While application is running
     while (!quit)
     {
         pressedButton = false;
@@ -617,6 +614,9 @@ void Update()
         {
             if (e.type == SDL_MOUSEBUTTONUP)
             {
+                // this code will invoke all onclick events that are subscriped 
+                // if mouseX and mouseY are both inside the button borders
+                // the button will execude their own invoke
                 SDL_GetMouseState(&mouseX, &mouseY);
                 if (mouseX > 0 && mouseX < SCREEN_WIDTH &&
                     mouseY > 0 && mouseY < SCREEN_HEIGHT)
@@ -629,7 +629,8 @@ void Update()
             {
                 quit = true;
             }
-            //nameTextInput.event.Invoke();
+            // this code will add text to editedText text when it fulfills 
+            // a surden criteria
             if (e.key.repeat == 0 && e.type == SDL_KEYDOWN && editedText != nullptr)
             {
                 std::string tempString = editedText->GetText();
@@ -656,6 +657,7 @@ void Update()
             }
         }
 
+        // clear last screen rendered
         SDL_RenderClear(gRenderer);
 
         switch (programState)
