@@ -151,6 +151,7 @@
     <ClCompile Include="MySQL.cpp" />
     <ClCompile Include="Question.cpp" />
     <ClCompile Include="Quiz.cpp" />
+    <ClCompile Include="SearchDialog.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="TextInput.cpp" />
     <ClCompile Include="User.cpp" />
@@ -162,9 +163,11 @@
     <ClInclude Include="Category.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="Icon.h" />
+    <ClInclude Include="ISearchDialogable.h" />
     <ClInclude Include="MySQL.h" />
     <ClInclude Include="Question.h" />
     <ClInclude Include="Quiz.h" />
+    <ClInclude Include="SearchDialog.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="TextInput.h" />
     <ClInclude Include="UiHeader.h" />

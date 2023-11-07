@@ -5,5 +5,7 @@
 #include "Button.h"
 #include "TextInput.h"
 #include "Icon.h"
+#include "ISearchDialogable.h"
+#include "SearchDialog.h"
 
 #endif

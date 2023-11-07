@@ -11,7 +11,7 @@ Button::Button()
 }
 
 Button::Button(int m_xPos, int m_yPos, int m_width, int m_height,
-			   SDL_Color m_color, SDL_Renderer* m_renderer)
+	SDL_Color m_color, SDL_Renderer* m_renderer)
 {
 	rect = { m_xPos, m_yPos, m_width, m_height };
 	color = m_color;
@@ -117,4 +117,17 @@ void Button::UpdateTexture()
 	SDL_FillRect(surf, NULL, clr);
 	buttonTexture = SDL_CreateTextureFromSurface(renderer, surf);
 	SDL_FreeSurface(surf);
+}
+
+
+void Button::UpdateHeight(const int newHeight)
+{
+	rect.y -= newHeight;
+	UpdateTexture();
+}
+
+void Button::SetNewRect(const int m_xPos, const int m_yPos, const int m_width, const int m_height)
+{
+	rect = { m_xPos, m_yPos, m_width, m_height };
+	UpdateTexture();
 }

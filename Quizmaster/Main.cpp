@@ -40,6 +40,7 @@ void Close();
 void Update();
 
 
+
 // these updates are used to update ui and other things specific to that page
 void Updatelogin();
 void UpdateSetUp();
@@ -91,16 +92,26 @@ Button decreaseTime;
 
 Button startGameButton;
 
+Button goToAdminButton;
+Button goToSetupFromAdminButton;
+
 TextInput nameTextInput;
 TextInput passwordTextInput;
+
+SearchDialog searchDialog;
+
 
 // this event is used to invoke all Onclick events
 // Onclick is used to invoke all events that a button ot textInput has
 Event clickEvent;
 
+Event scrollEvent;
+int scrollPos = 0;
+
+
 int difficulty[7][2] =
 {
-    // 5 questions - 10 sec
+    // 5 questions - 20 sec
     {5, 20},
     {10, 30},
     {15, 45},
@@ -127,6 +138,10 @@ int startTime = 0;
 int elapsedTime = 0;
 int currentTime = 0;
 
+int countdownWarning = 0;
+int startWarning = 0;
+int elapsedWarning = 0;
+
 // this text is used to intercact with a textInput and the main event in the 
 // update loop
 Text* editedText = nullptr;
@@ -136,6 +151,33 @@ int getRandomNumber(int m_min, int m_max)
 {
     int randomNumber = m_min + std::rand() % (m_max - m_min + 1);
     return randomNumber;
+}
+
+void ShowWarning(std::string m_text, int m_seconds)
+{
+    warningText.NewText(m_text);
+
+    startWarning = SDL_GetTicks() / 1000;
+    countdownWarning = m_seconds;
+
+    /*
+    startTime = SDL_GetTicks() / 1000;
+    //difficulty
+    countdownTime = difficulty[difficultyIndex][1];
+
+    currentTime = SDL_GetTicks() / 1000;
+    elapsedTime = currentTime - startTime;
+    if (countdownTime - elapsedTime < 1)
+    {
+        SetScoreboard();
+    }
+    * 
+    * 
+    int countdownWarning = 0;
+    int startWarning = 0;
+    int elapsedWarning = 0;
+    int currentWarningTime = 0;
+    */
 }
 
 // this function is used to check, initialize and define everything
@@ -266,7 +308,7 @@ bool Init()
     timeText = Text("time:", 125, 40, 75, gFont, {0,0,0}, gRenderer, left);
 
     difficultyText = Text("n/a", 325, SCREEN_HEIGHT - 150, 40, gFont, {0,0,0}, gRenderer, middle);
-    warningText = Text("warning:", SCREEN_WIDTH / 2, 125, 50, gFont, {250,50,50}, gRenderer, middle);
+    warningText = Text("", SCREEN_WIDTH / 2, 125, 50, gFont, {250,50,50}, gRenderer, middle);
 
     nameInputText = Text("name:", SCREEN_WIDTH / 2, 200, 50, gFont, {0,0,0}, gRenderer, middle);
     passwordInputText = Text("password:", SCREEN_WIDTH / 2, 350, 50, gFont, {0,0,0}, gRenderer, middle);
@@ -274,7 +316,6 @@ bool Init()
     nameTextInput = TextInput(250, 250, 650, 80, { 200,200,200 }, { 1,1,1 },
                              { 10,200,10 }, gRenderer, gFont);
     nameTextInput.text->SetMaxWidth(630);
-
     passwordTextInput = TextInput(250, 400, 650, 80,{ 200,200,200 }, { 1,1,1 },
                                  { 10,200,10 }, gRenderer, gFont);
     passwordTextInput.text->SetMaxWidth(630);
@@ -284,8 +325,25 @@ bool Init()
     loginButton.SetText("login", 60, gFont, {255, 255 , 255 });
     registerButton.SetText("register", 60, gFont, {255, 255 , 255 });
 
+    goToAdminButton = Button(40, 40, 300, 100, { 200, 200, 200 }, gRenderer);
+    goToSetupFromAdminButton = Button(40, 40, 300, 100, { 200, 200, 200 }, gRenderer);
+
+    goToAdminButton.SetText("go to admin", 40, gFont, { 10,10,10 });
+
     startGameButton = Button(SCREEN_WIDTH - 450, SCREEN_HEIGHT - 200 , 400, 150, { 100, 220,100 }, gRenderer);
     startGameButton.SetText("start the game", 50, gFont, { 0,0,0 });
+
+    searchDialog = SearchDialog(25, 180, 350, SCREEN_HEIGHT - 250, 100, { 180, 180, 180 }, gRenderer);
+
+    for (size_t i = 0; i < 10; i++)
+    {
+        Button* b = new Button(0, 200, 300, 100, { 220, 220, 220 }, gRenderer);
+        searchDialog.AddItem(b);
+    }
+
+    scrollEvent += std::bind(&SearchDialog::OnScroll, &searchDialog, &mouseX, &mouseY, &scrollPos);
+
+    //scrollPos
 
     
     #pragma endregion button init
@@ -312,16 +370,17 @@ void Close()
     nameTextInput.Free();
     pageTitle.Free();
 
+
+    loginButton.Free();
     TTF_CloseFont(gFont);
 
     IMG_Quit();
     SDL_Quit();
 }
 
-
-
 void Setlogin()
 {
+    
     programState = login;
     clickEvent.Clear();
     pageTitle.NewText("login");
@@ -342,6 +401,10 @@ void Setlogin()
             user = localUser;
             SetSetUp();
         }
+        else
+        {
+            ShowWarning(" user doesnt exsist", 5);
+        }
     };
 
     registerButton.event += [&]()
@@ -354,6 +417,10 @@ void Setlogin()
             User localUser = *acountManager.GetUser(name, password);
             user = localUser;
             SetSetUp();
+        }
+        else
+        {
+            ShowWarning(" user already exsist", 5);
         }
     };
 
@@ -373,6 +440,10 @@ void SetSetUp()
 
     clickEvent += std::bind(&Button::OnClick, &decreaseTime, &mouseX, &mouseY);
     clickEvent += std::bind(&Button::OnClick, &increaseTime, &mouseX, &mouseY);
+
+    clickEvent += std::bind(&Button::OnClick, &goToAdminButton, &mouseX, &mouseY);
+
+    goToAdminButton.event += std::bind(SetAdmin);
 
     decreaseTime.event += [&]()
     {
@@ -407,10 +478,12 @@ void SetSetUp()
         }
         if (!atleastSelected)
         {
+            ShowWarning("no catagories selected", 5);
             return;
         }
         if (!quiz.HasEnoughQuestions(catagories, difficulty[difficultyIndex][0]))
         {
+            ShowWarning("not enough catagories selected", 5);
             printf("not enough questions to start the quiz");
             return;
         }
@@ -427,7 +500,7 @@ void SetSetUp()
     }
 }
 
-
+// this function will display the new question based on m_index
 void NewQuestion(int m_index)
 {
     answerButtons.clear();
@@ -510,6 +583,7 @@ void SetGame()
     startTime = SDL_GetTicks() / 1000;
     //difficulty
     countdownTime = difficulty[difficultyIndex][1];
+
 }
 void SetScoreboard()
 {
@@ -522,6 +596,11 @@ void SetAdmin()
     pageTitle.NewText("admin");
     programState = admin;
     clickEvent.Clear();
+
+
+    clickEvent += std::bind(&Button::OnClick, &goToSetupFromAdminButton, &mouseX, &mouseY);
+
+    goToAdminButton.event += std::bind(SetSetUp);
 }
 
 
@@ -532,9 +611,7 @@ void Updatelogin()
     loginButton.Render();
     registerButton.Render();
 
-
     pageTitle.Render();
-    warningText.Render();
 
     nameInputText.Render();
     nameTextInput.Render();
@@ -547,7 +624,11 @@ void Updatelogin()
 
 void UpdateSetUp()
 {
-    //arrowTexture.Render();
+    if (user.isAdmin)
+    {
+        goToAdminButton.Render();
+    }
+
     increaseTime.Render();
     decreaseTime.Render();
     difficultyText.Render();
@@ -593,6 +674,10 @@ void UpdateScoreboard()
 void UpdateAdmin()
 {
     pageTitle.Render();
+    goToSetupFromAdminButton.Render();
+    searchDialog.Render();
+
+
 }
 
 
@@ -612,6 +697,23 @@ void Update()
         //Handle events on queue
         while (SDL_PollEvent(&e) != 0)
         {
+            if (e.type == SDL_MOUSEWHEEL)
+            {
+                SDL_GetMouseState(&mouseX, &mouseY);
+                //scrollwheel up
+                if (e.wheel.y > 0) 
+                {
+                    scrollPos += 10;
+                    scrollEvent.Invoke();
+                }
+                //scrollwheel down
+                else if (e.wheel.y < 0 && scrollPos > 11)
+                {
+                    scrollPos -= 10;
+                    scrollEvent.Invoke();
+                }
+            }
+
             if (e.type == SDL_MOUSEBUTTONUP)
             {
                 // this code will invoke all onclick events that are subscriped 
@@ -674,14 +776,21 @@ void Update()
             case scoreboard:
                 UpdateScoreboard();
                 break;
-                UpdateAdmin();
             case admin:
+                UpdateAdmin();
                 break;
 
             default:
                 break;
         }
-        
+
+        int currentWarningTime = SDL_GetTicks() / 1000;
+        elapsedWarning = currentWarningTime - startWarning;
+        if (countdownWarning - elapsedWarning > 1)
+        {
+            warningText.Render();
+        }
+
         //this code will display the final result
         SDL_RenderPresent(gRenderer);
     }

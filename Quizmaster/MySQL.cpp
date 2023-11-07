@@ -352,7 +352,7 @@ User* MySQL::GetUser(std::string m_name, std::string m_password)
         // Execute a SQL query
         sql::ResultSet* res;
         std::ostringstream statement;
-        statement << "SELECT user_name, user_score FROM users WHERE user_name = '" << m_name << "' AND user_password = '" << password << "';";
+        statement << "SELECT user_name, user_score, user_is_admin FROM users WHERE user_name = '" << m_name << "' AND user_password = '" << password << "';";
         //statement << "SELECT user_name,user_score FROM users WHERE user_name = "+ m_name +" AND user_password = "+ password +";";
         res = stmt->executeQuery(statement.str());
 
@@ -361,7 +361,7 @@ User* MySQL::GetUser(std::string m_name, std::string m_password)
         if (res->next())
         {
             //res->getString("name_column_name");
-            user = new User(res->getString("user_name"), res->getInt("user_score"));
+            user = new User(res->getString("user_name"), res->getInt("user_score"), res->getBoolean("user_is_admin"));
         }
         else
         {

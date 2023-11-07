@@ -57,7 +57,4 @@ class Text
 };
 
 
-
-
-
 #endif
