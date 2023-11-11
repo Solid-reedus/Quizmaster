@@ -5,6 +5,7 @@ Question::Question(std::string m_title, std::vector<Answer> m_answers)
 {
 	title = m_title;
 	answers = m_answers;
+	value = 1;
 }
 
 Question::~Question()

@@ -3,6 +3,7 @@
 #define I_SEARCH_DIALOGABLE
 #include "BaseHeader.h"
 
+
 class ISearchDialogable
 {
     public:

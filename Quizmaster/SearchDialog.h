@@ -10,6 +10,8 @@
 #ifndef SEARCH_DIALOG
 #define SEARCH_DIALOG
 
+
+
 class SearchDialog
 {	
 	public:
@@ -21,6 +23,7 @@ class SearchDialog
 	void Render();
 	void OnScroll(int* m_x, int* m_y, int* m_a);
 	void FreeItems();
+	std::vector<ISearchDialogable*>* GetElements();
 	
 	private:
 	std::vector<ISearchDialogable*> elements;
@@ -28,8 +31,7 @@ class SearchDialog
 	SDL_Color color;
 	SDL_Texture* searchDialogTexture;
 	SDL_Renderer* renderer;
-	int relxPos;
-	int elmSize;
+	int relxPos, elmSize;
 };
 
 

@@ -6,5 +6,6 @@
 #include <SDL_image.h>
 #include "string"
 #include <vector>
+#include <cstdint>
 
 #endif

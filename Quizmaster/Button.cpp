@@ -123,7 +123,14 @@ void Button::UpdateTexture()
 void Button::UpdateHeight(const int newHeight)
 {
 	rect.y -= newHeight;
+
+	if (text != nullptr)
+	{
+		text->SetNewPos(rect.x + rect.w / 2, rect.y + rect.h / 3);
+	}
+
 	UpdateTexture();
+
 }
 
 void Button::SetNewRect(const int m_xPos, const int m_yPos, const int m_width, const int m_height)

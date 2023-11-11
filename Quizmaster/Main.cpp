@@ -14,10 +14,23 @@ enum ProgramStates
     admin = 5
 };
 
+enum ShowAdminPanel
+{
+    NewQstn = 0,
+    delQstn = 1,
+    NewCat = 2,
+    delCat = 3,
+    admUser = 4,
+    delUser = 5,
+    addQstn = 6,
+};
+
 ProgramStates programState = login;
+ShowAdminPanel showAdminPanel = NewQstn;
 
 int const SCREEN_WIDTH = 1200;
 int const SCREEN_HEIGHT = 800;
+uint8_t const SCROLL_AMOUNT = 20;
 
 static MySQL mysql;
 static Quiz quiz;
@@ -38,8 +51,6 @@ bool Init();
 void Close();
 // this funtion is used to update things
 void Update();
-
-
 
 // these updates are used to update ui and other things specific to that page
 void Updatelogin();
@@ -74,11 +85,13 @@ User user;
 Text pageTitle;
 Text QuestionText;
 Text scoreText;
-Text timeText;
+Text timeTotText;
+Text timeCurText;
 Text difficultyText;
 Text warningText;
 Text nameInputText;
 Text passwordInputText;
+Text adminPanelPageText;
 
 // button classes
 Button loginButton;
@@ -95,6 +108,9 @@ Button startGameButton;
 Button goToAdminButton;
 Button goToSetupFromAdminButton;
 
+Button SkipQuestionButton;
+Button HalfQuestionsButton;
+
 TextInput nameTextInput;
 TextInput passwordTextInput;
 
@@ -106,8 +122,7 @@ SearchDialog searchDialog;
 Event clickEvent;
 
 Event scrollEvent;
-int scrollPos = 0;
-
+int scrollAmount = 0;
 
 int difficulty[7][2] =
 {
@@ -147,7 +162,7 @@ int elapsedWarning = 0;
 Text* editedText = nullptr;
 
 // this is a shortend way to generate a random number
-int getRandomNumber(int m_min, int m_max) 
+int getRandomNumber(int m_min, int m_max)
 {
     int randomNumber = m_min + std::rand() % (m_max - m_min + 1);
     return randomNumber;
@@ -159,25 +174,44 @@ void ShowWarning(std::string m_text, int m_seconds)
 
     startWarning = SDL_GetTicks() / 1000;
     countdownWarning = m_seconds;
+}
 
-    /*
-    startTime = SDL_GetTicks() / 1000;
-    //difficulty
-    countdownTime = difficulty[difficultyIndex][1];
-
-    currentTime = SDL_GetTicks() / 1000;
-    elapsedTime = currentTime - startTime;
-    if (countdownTime - elapsedTime < 1)
+// this is a switch that changes what is shown on the admin panel
+void SetShowAdminPanel(int m_index)
+{
+    switch (m_index)
     {
-        SetScoreboard();
+    case 0:
+        adminPanelPageText.NewText("new question");
+        showAdminPanel = NewQstn;
+        break;
+    case 1:
+        adminPanelPageText.NewText("delete question");
+        showAdminPanel = delQstn;
+        break;
+    case 2:
+        adminPanelPageText.NewText("new catagory");
+        showAdminPanel = NewCat;
+        break;
+    case 3:
+        adminPanelPageText.NewText("delete catagory");
+        showAdminPanel = delCat;
+        break;
+    case 4:
+        adminPanelPageText.NewText("make user admin");
+        showAdminPanel = admUser;
+        break;
+    case 5:
+        adminPanelPageText.NewText("delete user");
+        showAdminPanel = delUser;
+        break;
+    case 6:
+        adminPanelPageText.NewText("add extra ansers");
+        showAdminPanel = addQstn;
+        break;
+    default:
+        break;
     }
-    * 
-    * 
-    int countdownWarning = 0;
-    int startWarning = 0;
-    int elapsedWarning = 0;
-    int currentWarningTime = 0;
-    */
 }
 
 // this function is used to check, initialize and define everything
@@ -219,134 +253,169 @@ bool Init()
     }
 
     // this code checks if the TTF_OpenFont lib is functioning correctly
-    if (TTF_Init() == -1) 
+    if (TTF_Init() == -1)
     {
         printf("TTF_OpenFont failed! TTF_Error: %s\n", TTF_GetError());
         success = false;
     }
 
     // defines global font 
-    gFont = TTF_OpenFont("mcFont.ttf", 24); 
+    gFont = TTF_OpenFont("mcFont.ttf", 24);
 
-    if (!gFont) 
+    if (!gFont)
     {
         printf("gFont is indefined");
         success = false;
     }
+
+    // this code will generate a random seed so the program can use random numbers
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
 
     // here multiple things get defined
     quiz.SetMySQL(&mysql);
     acountManager.SetMySQL(&mysql);
     catagories = mysql.GetCategories();
 
-    // this code will generate a random seed so the program can use random numbers
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
     #pragma region catagory pos init
-    
 
-    int catagoryXPos = -170;
-    int catagoryYPos = 200;
 
-    for (size_t i = 0; i < catagories->size(); i++)
-    {
-        int xPos, yPos;
-        if (catagoryXPos + 300 > SCREEN_WIDTH)
+        int catagoryXPos = -170;
+        int catagoryYPos = 200;
+
+        for (size_t i = 0; i < catagories->size(); i++)
         {
-            catagoryXPos = 50;
-            catagoryYPos += 125;
-        }
-        else
-        {
-            catagoryXPos += 220;
-        }
-        xPos = catagoryXPos;
-        yPos = catagoryYPos;
-
-        catagoryButtons.push_back(
-            Button(xPos, yPos, 200, 100, { 150, 150, 150 }, gRenderer));
-
-    }
-    for (size_t i = 0; i < catagories->size(); i++)
-    {
-        Button& b = catagoryButtons[i];
-        b.SetText((*catagories)[i].name, 50, gFont, { 0,0,0 });
-
-        b.event += [i, &b]() 
-        {
-            int index = i;
-            Category& c = (*catagories)[index];
-            printf("select catagory %s and index = %d \n", c.name.c_str(), index);
-
-            if (!c.isSelected)
+            int xPos, yPos;
+            if (catagoryXPos + 300 > SCREEN_WIDTH)
             {
-                c.isSelected = true;
-                b.SetColor({ 50,50,250 });
+                catagoryXPos = 50;
+                catagoryYPos += 125;
             }
             else
             {
-                c.isSelected = false;
-                b.SetColor({ 150, 150, 150 });
+                catagoryXPos += 220;
             }
-        };
-    }
+            xPos = catagoryXPos;
+            yPos = catagoryYPos;
+
+            catagoryButtons.push_back(
+                Button(xPos, yPos, 200, 100, { 150, 150, 150 }, gRenderer));
+
+        }
+        for (size_t i = 0; i < catagories->size(); i++)
+        {
+            Button& b = catagoryButtons[i];
+            b.SetText((*catagories)[i].name, 50, gFont, { 0,0,0 });
+
+            b.event += [i, &b]()
+            {
+                int index = i;
+                Category& c = (*catagories)[index];
+                printf("select catagory %s and index = %d \n", c.name.c_str(), index);
+
+                if (!c.isSelected)
+                {
+                    c.isSelected = true;
+                    b.SetColor({ 50,50,250 });
+                }
+                else
+                {
+                    c.isSelected = false;
+                    b.SetColor({ 150, 150, 150 });
+                }
+            };
+        }
 
     #pragma endregion button init
-    
+
     #pragma region button init
 
-    increaseTime = Button(SCREEN_WIDTH - 625, SCREEN_HEIGHT - 175, 100, 100, { 255, 255,255 }, gRenderer);
-    decreaseTime = Button(0, SCREEN_HEIGHT - 175, 100, 100, { 255, 255,255 }, gRenderer);
-    increaseTime.SetIcon(loadTexture("arrow.png", gRenderer), 90);
-    decreaseTime.SetIcon(loadTexture("arrow.png", gRenderer), -90);
+        increaseTime = Button(SCREEN_WIDTH - 625, SCREEN_HEIGHT - 175, 100, 100, { 255, 255,255 }, gRenderer);
+        decreaseTime = Button(0, SCREEN_HEIGHT - 175, 100, 100, { 255, 255,255 }, gRenderer);
+        increaseTime.SetIcon(loadTexture("arrow.png", gRenderer), 90);
+        decreaseTime.SetIcon(loadTexture("arrow.png", gRenderer), -90);
 
-    pageTitle = Text("welcome", SCREEN_WIDTH / 2, 15, 125, gFont, {0,0,0}, gRenderer, middle);
-    QuestionText = Text("n/a", SCREEN_WIDTH / 2, 150, 50, gFont, {0,0,0}, gRenderer, middle);
-    QuestionText.SetMaxWidth(SCREEN_WIDTH - 250);
+        pageTitle = Text("welcome", SCREEN_WIDTH / 2, 15, 125, gFont, { 0,0,0 }, gRenderer, middle);
+        QuestionText = Text("n/a", SCREEN_WIDTH / 2, 150, 50, gFont, { 0,0,0 }, gRenderer, middle);
+        QuestionText.SetMaxWidth(SCREEN_WIDTH - 250);
 
-    scoreText = Text("n/a", SCREEN_WIDTH - 275, 40, 75, gFont, {0,0,0}, gRenderer, middle);
-    timeText = Text("time:", 125, 40, 75, gFont, {0,0,0}, gRenderer, left);
+        scoreText = Text("n/a", SCREEN_WIDTH - 275, 40, 75, gFont, { 0,0,0 }, gRenderer, middle);
 
-    difficultyText = Text("n/a", 325, SCREEN_HEIGHT - 150, 40, gFont, {0,0,0}, gRenderer, middle);
-    warningText = Text("", SCREEN_WIDTH / 2, 125, 50, gFont, {250,50,50}, gRenderer, middle);
+        timeTotText = Text("tot time:", 50, 40, 45, gFont, { 0,0,0 }, gRenderer, left);
+        timeCurText = Text("time:", 140, 80, 45, gFont, { 0,0,0 }, gRenderer, left);
 
-    nameInputText = Text("name:", SCREEN_WIDTH / 2, 200, 50, gFont, {0,0,0}, gRenderer, middle);
-    passwordInputText = Text("password:", SCREEN_WIDTH / 2, 350, 50, gFont, {0,0,0}, gRenderer, middle);
 
-    nameTextInput = TextInput(250, 250, 650, 80, { 200,200,200 }, { 1,1,1 },
-                             { 10,200,10 }, gRenderer, gFont);
-    nameTextInput.text->SetMaxWidth(630);
-    passwordTextInput = TextInput(250, 400, 650, 80,{ 200,200,200 }, { 1,1,1 },
-                                 { 10,200,10 }, gRenderer, gFont);
-    passwordTextInput.text->SetMaxWidth(630);
 
-    loginButton = Button(250, 550, 300, 150, { 100,100,100 }, gRenderer);
-    registerButton = Button(600, 550, 300, 150, { 100,100,100 }, gRenderer);
-    loginButton.SetText("login", 60, gFont, {255, 255 , 255 });
-    registerButton.SetText("register", 60, gFont, {255, 255 , 255 });
+        difficultyText = Text("n/a", 325, SCREEN_HEIGHT - 150, 40, gFont, { 0,0,0 }, gRenderer, middle);
+        warningText = Text("", SCREEN_WIDTH / 2, 125, 50, gFont, { 250,50,50 }, gRenderer, middle);
 
-    goToAdminButton = Button(40, 40, 300, 100, { 200, 200, 200 }, gRenderer);
-    goToSetupFromAdminButton = Button(40, 40, 300, 100, { 200, 200, 200 }, gRenderer);
+        nameInputText = Text("name:", SCREEN_WIDTH / 2, 200, 50, gFont, { 0,0,0 }, gRenderer, middle);
+        passwordInputText = Text("password:", SCREEN_WIDTH / 2, 350, 50, gFont, { 0,0,0 }, gRenderer, middle);
 
-    goToAdminButton.SetText("go to admin", 40, gFont, { 10,10,10 });
+        adminPanelPageText = Text("page:", SCREEN_WIDTH / 3, 150, 50, gFont, { 0,0,0 }, gRenderer, left);
 
-    startGameButton = Button(SCREEN_WIDTH - 450, SCREEN_HEIGHT - 200 , 400, 150, { 100, 220,100 }, gRenderer);
-    startGameButton.SetText("start the game", 50, gFont, { 0,0,0 });
+        nameTextInput = TextInput(250, 250, 650, 80, { 200,200,200 }, { 1,1,1 },
+            { 10,200,10 }, gRenderer, gFont);
+        nameTextInput.text->SetMaxWidth(630);
+        passwordTextInput = TextInput(250, 400, 650, 80, { 200,200,200 }, { 1,1,1 },
+            { 10,200,10 }, gRenderer, gFont);
+        passwordTextInput.text->SetMaxWidth(630);
 
-    searchDialog = SearchDialog(25, 180, 350, SCREEN_HEIGHT - 250, 100, { 180, 180, 180 }, gRenderer);
+        loginButton = Button(250, 550, 300, 150, { 100,100,100 }, gRenderer);
+        registerButton = Button(600, 550, 300, 150, { 100,100,100 }, gRenderer);
+        loginButton.SetText("login", 60, gFont, { 255, 255 , 255 });
+        registerButton.SetText("register", 60, gFont, { 255, 255 , 255 });
 
-    for (size_t i = 0; i < 10; i++)
-    {
-        Button* b = new Button(0, 200, 300, 100, { 220, 220, 220 }, gRenderer);
-        searchDialog.AddItem(b);
-    }
+        goToAdminButton = Button(40, 40, 300, 100, { 200, 200, 200 }, gRenderer);
+        goToSetupFromAdminButton = Button(40, 40, 300, 100, { 200, 200, 200 }, gRenderer);
 
-    scrollEvent += std::bind(&SearchDialog::OnScroll, &searchDialog, &mouseX, &mouseY, &scrollPos);
+        goToAdminButton.SetText("go to admin", 40, gFont, { 10,10,10 });
+        goToSetupFromAdminButton.SetText("go to setup", 40, gFont, { 10,10,10 });
 
-    //scrollPos
+        startGameButton = Button(SCREEN_WIDTH - 450, SCREEN_HEIGHT - 200, 400, 150, { 100, 220,100 }, gRenderer);
+        startGameButton.SetText("start the game", 50, gFont, { 0,0,0 });
 
-    
+
+        SkipQuestionButton = Button(350, 40, 175, 80, { 220, 60, 250 }, gRenderer);
+        SkipQuestionButton.SetText("skip", 50, gFont, { 0,0,0 });
+
+        HalfQuestionsButton = Button(550, 40, 175, 80, { 50, 50, 250 }, gRenderer);
+        HalfQuestionsButton.SetText("half", 50, gFont, { 0,0,0 });
+
+        searchDialog = SearchDialog(25, 180, 350, SCREEN_HEIGHT - 250, 100, { 180, 180, 180 }, gRenderer);
+
     #pragma endregion button init
+
+    #pragma region SearchDialogs init
+
+        const Uint8 shdItemCount = 7;
+        std::string shdItems[shdItemCount]
+        {
+            "new question",
+            "delete question",
+            "new catagory",
+            "delete catagory",
+            "make user admin",
+            "delete user",
+            "add extra answers",
+        };
+        for (size_t i = 0; i < shdItemCount; i++)
+        {
+            // new items are added by adding them to the heap and pushing a 
+            // ptr to the list
+            Button* b = new Button(0, 200, 300, 100, { 220, 220, 220 }, gRenderer);
+            b->SetText(shdItems[i], 30, gFont, { 0,0,0 });
+
+            // on click change the panel
+            b->event += std::bind(&SetShowAdminPanel, i);
+            //push item to items list
+            searchDialog.AddItem(b);
+        }
+        scrollEvent += std::bind(&SearchDialog::OnScroll, &searchDialog, &mouseX, &mouseY, &scrollAmount);
+
+
+    #pragma endregion SearchDialogs init
 
     return success;
 }
@@ -356,6 +425,8 @@ bool Init()
 // this funtion is used when exiting the program
 void Close()
 {
+    //free heap memory
+    searchDialog.FreeItems();
     quiz.Free();
 
     SDL_FreeSurface(gSurface);
@@ -380,7 +451,7 @@ void Close()
 
 void Setlogin()
 {
-    
+
     programState = login;
     clickEvent.Clear();
     pageTitle.NewText("login");
@@ -388,7 +459,7 @@ void Setlogin()
     clickEvent += std::bind(&Button::OnClick, &loginButton, &mouseX, &mouseY);
     clickEvent += std::bind(&Button::OnClick, &registerButton, &mouseX, &mouseY);
 
-    loginButton.event += [&]() 
+    loginButton.event += [&]()
     {
         std::string name = nameTextInput.text->GetText();
         std::string password = passwordTextInput.text->GetText();
@@ -429,7 +500,7 @@ void Setlogin()
 
     nameTextInput.event += [&]() {nameTextInput.EditText(editedText);};
     passwordTextInput.event += [&]() {passwordTextInput.EditText(editedText);};
-    
+
 }
 void SetSetUp()
 {
@@ -505,9 +576,15 @@ void NewQuestion(int m_index)
 {
     answerButtons.clear();
     clickEvent.Clear();
+
+    clickEvent += std::bind(&Button::OnClick, &SkipQuestionButton, &mouseX, &mouseY);
+
+
     int x = 0;
     int y = 0;
     int rows = std::ceil(quiz.GetQuestion(m_index)->answers.size() / 2);
+
+    quiz.GetQuestion(m_index);
 
     for (Answer a : quiz.GetQuestion(m_index)->answers)
     {
@@ -537,22 +614,26 @@ void NewQuestion(int m_index)
         int b = getRandomNumber(75, 255);
 
         SDL_Color c = { r,g,b };
-        answerButtons.push_back(Button(xPos, yPos, 500, height, c , gRenderer));
+        answerButtons.push_back(Button(xPos, yPos, 500, height, c, gRenderer));
         answerButtons.back().SetText(a.text, height / 4, gFont, { 0,0,0 });
         answerButtons.back().SetTextMaxWidth(450);
 
-        answerButtons.back().event += [a]()
+
+        Uint8 mod = quiz.GetQuestion(m_index)->value;
+        answerButtons.back().event += [a, mod]()
         {
             questionIndex++;
             printf("new questionIndex =  %d \n", questionIndex);
             if (a.isTrue)
             {
                 printf("answer was correct \n");
-                CurrentScore++;
+
+                CurrentScore += mod;
                 scoreText.NewText("score:" + std::to_string(CurrentScore * 10));
             }
             if (questionIndex >= questionTotal)
             {
+                //send score to database
                 SetScoreboard();
             }
             else
@@ -580,6 +661,23 @@ void SetGame()
 
     QuestionText.NewText(quiz.GetQuestion(0)->title);
     NewQuestion(0);
+
+    SkipQuestionButton.event += [&]()
+    {
+        questionIndex++;
+        printf("new questionIndex =  %d \n", questionIndex);
+        if (questionIndex >= questionTotal)
+        {
+            //send score to database
+            SetScoreboard();
+        }
+        else
+        {
+            NewQuestion(questionIndex);
+        }
+    };
+
+
     startTime = SDL_GetTicks() / 1000;
     //difficulty
     countdownTime = difficulty[difficultyIndex][1];
@@ -597,12 +695,23 @@ void SetAdmin()
     programState = admin;
     clickEvent.Clear();
 
-
+    goToSetupFromAdminButton.event += std::bind(SetSetUp);
     clickEvent += std::bind(&Button::OnClick, &goToSetupFromAdminButton, &mouseX, &mouseY);
 
-    goToAdminButton.event += std::bind(SetSetUp);
-}
+    std::vector<ISearchDialogable*>* items = searchDialog.GetElements();
+    Uint8 step = 0;
 
+    for (ISearchDialogable* i : *items)
+    {
+        Button* buttonPtr = dynamic_cast<Button*>(i);
+        if (buttonPtr)
+        {
+            //buttonPtr->event += std::bind(&SetShowAdminPanel, step);
+            clickEvent += std::bind(&Button::OnClick, buttonPtr, &mouseX, &mouseY);
+            step++;
+        }
+    }
+}
 
 
 void Updatelogin()
@@ -647,6 +756,9 @@ void UpdateGame()
     QuestionText.Render();
     scoreText.Render();
 
+    SkipQuestionButton.Render();
+    HalfQuestionsButton.Render();
+
 
     currentTime = SDL_GetTicks() / 1000;
     elapsedTime = currentTime - startTime;
@@ -655,8 +767,9 @@ void UpdateGame()
         SetScoreboard();
     }
 
-    timeText.NewText("time:" + std::to_string(countdownTime - elapsedTime));
-    timeText.Render();
+    timeTotText.NewText("tot time:" + std::to_string(countdownTime - elapsedTime));
+    timeTotText.Render();
+    timeCurText.Render();
 
     //catagoryButtons
     for (Button btn : answerButtons)
@@ -671,16 +784,37 @@ void UpdateScoreboard()
     pageTitle.Render();
 }
 
+void UpdateAdminPanel()
+{
+    switch (showAdminPanel)
+    {
+    case NewQstn:
+        break;
+    case delQstn:
+        break;
+    case NewCat:
+        break;
+    case delCat:
+        break;
+    case admUser:
+        break;
+    case delUser:
+        break;
+    case addQstn:
+        break;
+    default:
+        break;
+    }
+}
+
 void UpdateAdmin()
 {
+    adminPanelPageText.Render();
+    UpdateAdminPanel();
     pageTitle.Render();
     goToSetupFromAdminButton.Render();
     searchDialog.Render();
-
-
 }
-
-
 
 
 void Update()
@@ -701,15 +835,15 @@ void Update()
             {
                 SDL_GetMouseState(&mouseX, &mouseY);
                 //scrollwheel up
-                if (e.wheel.y > 0) 
+                if (e.wheel.y > 0)
                 {
-                    scrollPos += 10;
+                    scrollAmount = SCROLL_AMOUNT;
                     scrollEvent.Invoke();
                 }
                 //scrollwheel down
-                else if (e.wheel.y < 0 && scrollPos > 11)
+                else if (e.wheel.y < 0)
                 {
-                    scrollPos -= 10;
+                    scrollAmount = -SCROLL_AMOUNT;
                     scrollEvent.Invoke();
                 }
             }
@@ -764,24 +898,24 @@ void Update()
 
         switch (programState)
         {
-            case login:
-                Updatelogin();
-                break;
-            case gameSetup:
-                UpdateSetUp();
-                break;
-            case game:
-                UpdateGame();
-                break;
-            case scoreboard:
-                UpdateScoreboard();
-                break;
-            case admin:
-                UpdateAdmin();
-                break;
+        case login:
+            Updatelogin();
+            break;
+        case gameSetup:
+            UpdateSetUp();
+            break;
+        case game:
+            UpdateGame();
+            break;
+        case scoreboard:
+            UpdateScoreboard();
+            break;
+        case admin:
+            UpdateAdmin();
+            break;
 
-            default:
-                break;
+        default:
+            break;
         }
 
         int currentWarningTime = SDL_GetTicks() / 1000;
@@ -811,5 +945,5 @@ int main(int argc, char* args[])
         Update();
     }
     Close();
-	return 0;
+    return 0;
 }

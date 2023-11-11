@@ -2,6 +2,7 @@
 #define QUIZ
 
 #include "Question.h"
+#include <random>
 
 #ifndef MYSQL
 #include "MySQL.h"
@@ -29,6 +30,7 @@ class Quiz
 	bool HasEnoughQuestions(std::vector<Category>* m_categories, int m_count);
 
 	private:
+	int getRandomNumber(int min, int max);
 	int correctAnswers;
 	std::vector<Question> questions;
 	MySQL* mysql;

@@ -38,6 +38,8 @@ void SearchDialog::AddItem(ISearchDialogable* m_item)
 	int y = (elements.size() * (elmSize + 5)) + rect.y;
 	y += 5;
 	m_item->SetNewRect(rect.x + 5, y, rect.w - 10, elmSize);
+	// update height to current height
+	m_item->UpdateHeight(0);
 	elements.push_back(m_item);
 }
 
@@ -51,7 +53,14 @@ void SearchDialog::Render()
 	}
 
 	int s = relxPos / elmSize;
-	int m = (relxPos + rect.h) / elmSize;
+	if (s > 0)
+	{
+		s--;
+	}
+	int m = (relxPos + rect.h) / elmSize + 1;
+
+
+	SDL_RenderSetClipRect(renderer, &rect);
 
 	for (size_t i = s; i < m; i++)
 	{
@@ -61,6 +70,8 @@ void SearchDialog::Render()
 		}
 		elements[i]->Render();
 	}
+
+	SDL_RenderSetClipRect(renderer, nullptr);
 }
 
 void SearchDialog::OnScroll(int* m_x, int* m_y, int* m_a)
@@ -69,12 +80,38 @@ void SearchDialog::OnScroll(int* m_x, int* m_y, int* m_a)
 	if (*m_x > rect.x && *m_x < rect.x + rect.w &&
 		*m_y > rect.y && *m_y < rect.y + rect.h)
 	{
+		// +*m_a
+		if (*m_a > 0)
+		{
+			// if relative + increase amount is bigger than the size of all elements * a element size + 5px margin
+			// - height of the SearchDialog and subtracting the subtracting with a subtracting so it adds 
+			// a extra 1px extra lenght to the max relxPos
+			if ((relxPos + *m_a) > ((elements.size() * (elmSize + 5)) - (rect.h - (elements.size() + *m_a))))
+			{
+				return;
+			}
+		}
+		// -*m_a
+		else
+		{
+			if ((relxPos - *m_a) < 1)
+			{
+				return;
+			}
+		}
+
+		relxPos += *m_a;
 		printf("scroll \n");
 		for (ISearchDialogable* e : elements)
 		{
 			e->UpdateHeight(*m_a);
 		}
 	}
+}
+
+std::vector<ISearchDialogable*>* SearchDialog::GetElements()
+{
+	return &elements;
 }
 
 void SearchDialog::FreeItems()

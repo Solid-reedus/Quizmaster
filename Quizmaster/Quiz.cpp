@@ -1,5 +1,7 @@
 #include "quiz.h"
 
+uint8_t const SUPER_QUESTION_INTERVAL = 20;
+
 
 Quiz::Quiz()
 {
@@ -23,6 +25,13 @@ void Quiz::Free()
 
 }
 
+int Quiz::getRandomNumber(int min, int max)
+{
+	static std::mt19937 generator(std::random_device{}());
+	std::uniform_int_distribution<int> distribution(min, max);
+	return distribution(generator);
+}
+
 void Quiz::SetMySQL(MySQL* m_mysql)
 {
 	mysql = m_mysql;
@@ -34,6 +43,25 @@ void Quiz::StartQuiz(std::vector<Category>* m_categories, int m_amount)
 	if (mysql != nullptr)
 	{
 		questions = mysql->GetQuestions(m_categories, m_amount);
+
+		//modify values from questions
+
+		//if question is lesser than the interval then return early
+		if ((questions.size() / SUPER_QUESTION_INTERVAL) < 1)
+		{
+			return;
+		}
+
+		for (size_t i = 0; i < questions.size(); i+= SUPER_QUESTION_INTERVAL)
+		{
+			Uint8 index = getRandomNumber(i, i + SUPER_QUESTION_INTERVAL);
+			if (index < questions.size() - 1)
+			{
+				index -= 1;
+			}
+			questions[getRandomNumber(i, i +SUPER_QUESTION_INTERVAL )].value = 2;
+		}
+
 	}
 	else
 	{
