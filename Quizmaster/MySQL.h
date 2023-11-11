@@ -9,6 +9,7 @@
 #include <cppconn/prepared_statement.h>
 #include <sstream>
 
+#include "Score.h"
 #include "User.h"
 #include <vector>
 
@@ -24,6 +25,12 @@
 #include "User.h"
 #endif
 
+enum GameMode
+{
+	gmNone = 0,
+	gmTimed = 1,
+	gmspeedrun = 2,
+};
 
 class MySQL
 {
@@ -35,6 +42,8 @@ class MySQL
 	std::vector<Question> GetQuestions(std::vector<Category>* m_categories, int m_amount);
 	bool UserExsist(std::string m_name, std::string m_password);
 	void MakeAcount(std::string m_name, std::string m_password);
+	void AddNewScore(int m_userId, int m_score, int m_questionCount, int m_time, GameMode m_gameMode);
+	std::vector<Score> GetScores(GameMode m_gameMode);
 	User* GetUser(std::string m_name, std::string m_password);
 	bool UserNameIsTaken(std::string m_name);
 	bool HasEnoughQuestions(std::vector<Category>* m_categories, int m_count);

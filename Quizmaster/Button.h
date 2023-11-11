@@ -42,13 +42,7 @@ class Button : public ISearchDialogable
 
 	Event event;
 
-	/*
-	std::string m_text, int m_xPos, int m_yPos, int m_size,
-		 TTF_Font* m_font, SDL_Color m_color
-	*/
-
 	private:
-
 	Text* text;
 	Icon* icon;
 	SDL_Rect rect;

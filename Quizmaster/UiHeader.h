@@ -7,5 +7,6 @@
 #include "Icon.h"
 #include "ISearchDialogable.h"
 #include "SearchDialog.h"
+#include "Panel.h"
 
 #endif

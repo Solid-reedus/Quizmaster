@@ -72,6 +72,12 @@
     <ClCompile Include="SearchDialog.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Score.cpp">
+      <Filter>Source Files\database</Filter>
+    </ClCompile>
+    <ClCompile Include="Panel.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseHeader.h">
@@ -117,6 +123,12 @@
       <Filter>Resource Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="SearchDialog.h">
+      <Filter>Resource Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Score.h">
+      <Filter>Resource Files\database</Filter>
+    </ClInclude>
+    <ClInclude Include="Panel.h">
       <Filter>Resource Files\UI</Filter>
     </ClInclude>
   </ItemGroup>

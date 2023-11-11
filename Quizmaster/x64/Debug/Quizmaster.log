@@ -1,10 +1,10 @@
-﻿  AcountManager.cpp
-  Main.cpp
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(327,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(585,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(616,25): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(616,27): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(616,29): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
+﻿  Main.cpp
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(346,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(456,34): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(671,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(702,25): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(702,27): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(702,29): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\type_traits(1572,67): warning C4244: 'argument': conversion from '_Cv_TiD' to 'int', possible loss of data
           with
           [
@@ -77,45 +77,14 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.3193
               _Ty=std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>,
               _Fx=std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>
           ]
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(411,57): message : see reference to function template instantiation 'std::function<void (void)>::function<std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>,0>(_Fx &&)' being compiled
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(439,57): message : see reference to function template instantiation 'std::function<void (void)>::function<std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>,0>(_Fx &&)' being compiled
           with
           [
               _Fx=std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>
           ]
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(411,22): message : see reference to function template instantiation 'std::function<void (void)>::function<std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>,0>(_Fx &&)' being compiled
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(439,22): message : see reference to function template instantiation 'std::function<void (void)>::function<std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>,0>(_Fx &&)' being compiled
           with
           [
               _Fx=std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>
           ]
-  MySQL.cpp
-  Question.cpp
-  Quiz.cpp
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Quiz.cpp(57,64): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Quiz.cpp(62,60): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Quiz.cpp(79,25): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-  Generating Code...
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\MySQL.cpp(381): warning C4715: 'MySQL::GetUser': not all control paths return a value
-mysqlcppconn-static.lib(mysql_driver.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_driver.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_connection.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_connection.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_native_driver_wrapper.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_native_driver_wrapper.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_uri.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_uri.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_metadata.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_metadata.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_warning.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_warning.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_prepared_statement.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_prepared_statement.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_statement.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_statement.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_debug.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_debug.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_client_api.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_client_api.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_native_connection_wrapper.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_native_connection_wrapper.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_util.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_util.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_art_resultset.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_art_resultset.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_resultbind.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_resultbind.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_ps_resultset.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_ps_resultset.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_ps_resultset_metadata.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_ps_resultset_metadata.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_parameter_metadata.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_parameter_metadata.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_resultset.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_resultset.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_native_resultset_wrapper.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_native_resultset_wrapper.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_native_statement_wrapper.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_native_statement_wrapper.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_art_rset_metadata.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_art_rset_metadata.obj)' or at ''; linking object as if no debug info
-mysqlcppconn-static.lib(mysql_resultset_metadata.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_resultset_metadata.obj)' or at ''; linking object as if no debug info
-     Creating library C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\x64\Debug\Quizmaster.lib and object C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\x64\Debug\Quizmaster.exp
   Quizmaster.vcxproj -> C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\x64\Debug\Quizmaster.exe

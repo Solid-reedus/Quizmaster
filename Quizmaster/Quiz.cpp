@@ -52,14 +52,14 @@ void Quiz::StartQuiz(std::vector<Category>* m_categories, int m_amount)
 			return;
 		}
 
-		for (size_t i = 0; i < questions.size(); i+= SUPER_QUESTION_INTERVAL)
+		for (size_t i = SUPER_QUESTION_INTERVAL; i < questions.size(); i+= SUPER_QUESTION_INTERVAL)
 		{
 			Uint8 index = getRandomNumber(i, i + SUPER_QUESTION_INTERVAL);
 			if (index < questions.size() - 1)
 			{
-				index -= 1;
+				index = questions.size() - 1;
 			}
-			questions[getRandomNumber(i, i +SUPER_QUESTION_INTERVAL )].value = 2;
+			questions[getRandomNumber(i, i +SUPER_QUESTION_INTERVAL)].value = 2;
 		}
 
 	}

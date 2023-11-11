@@ -149,8 +149,10 @@
     <ClCompile Include="Icon.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MySQL.cpp" />
+    <ClCompile Include="Panel.cpp" />
     <ClCompile Include="Question.cpp" />
     <ClCompile Include="Quiz.cpp" />
+    <ClCompile Include="Score.cpp" />
     <ClCompile Include="SearchDialog.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="TextInput.cpp" />
@@ -165,8 +167,10 @@
     <ClInclude Include="Icon.h" />
     <ClInclude Include="ISearchDialogable.h" />
     <ClInclude Include="MySQL.h" />
+    <ClInclude Include="Panel.h" />
     <ClInclude Include="Question.h" />
     <ClInclude Include="Quiz.h" />
+    <ClInclude Include="Score.h" />
     <ClInclude Include="SearchDialog.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="TextInput.h" />

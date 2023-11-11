@@ -352,7 +352,7 @@ User* MySQL::GetUser(std::string m_name, std::string m_password)
         // Execute a SQL query
         sql::ResultSet* res;
         std::ostringstream statement;
-        statement << "SELECT user_name, user_score, user_is_admin FROM users WHERE user_name = '" << m_name << "' AND user_password = '" << password << "';";
+        statement << "SELECT user_name, user_id, user_score, user_is_admin FROM users WHERE user_name = '" << m_name << "' AND user_password = '" << password << "';";
         //statement << "SELECT user_name,user_score FROM users WHERE user_name = "+ m_name +" AND user_password = "+ password +";";
         res = stmt->executeQuery(statement.str());
 
@@ -360,8 +360,7 @@ User* MySQL::GetUser(std::string m_name, std::string m_password)
 
         if (res->next())
         {
-            //res->getString("name_column_name");
-            user = new User(res->getString("user_name"), res->getInt("user_score"), res->getBoolean("user_is_admin"));
+            user = new User(res->getString("user_name"), res->getInt("user_id"), res->getInt("user_score"), res->getBoolean("user_is_admin"));
         }
         else
         {
@@ -372,7 +371,6 @@ User* MySQL::GetUser(std::string m_name, std::string m_password)
         delete stmt;
 
         return user;
-        //SELECT * FROM users WHERE user_name = "jeff" AND user_password = "rcuuyqtf";
     }
     catch (const std::exception& e)
     {
@@ -437,4 +435,85 @@ bool MySQL::UserExsist(std::string m_name, std::string m_password)
 
 }
 
+void MySQL::AddNewScore(int m_userId, int m_score, int m_questionCount, int m_time, GameMode m_gameMode)
+{
+    if (!con)
+    {
+        printf("cannot make a new acount there isnt a connecttion \n");
+        return;
+    }
 
+    try
+    {
+        std::string insertQuery = "INSERT INTO scores (score_points, score_question_count, score_time, user_id, game_mode_id) VALUES (?, ?, ?, ?, ?)";
+        sql::PreparedStatement* pstmt = con->prepareStatement(insertQuery);
+
+        pstmt->setInt(1, m_score);
+        pstmt->setInt(2, m_questionCount);
+        pstmt->setInt(3, m_time);
+        pstmt->setInt(4, m_userId);
+        pstmt->setInt(5, m_gameMode);
+
+        pstmt->executeUpdate();
+        delete pstmt;
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQL Error: " << e.what() << std::endl;
+    }
+}
+
+std::vector<Score> MySQL::GetScores(GameMode m_gameMode)
+{
+    std::vector<Score> scores;
+    if (!con)
+    {
+        printf("cannot get scores there isnt a connecttion \n");
+        return scores;
+    }
+
+    try
+    {
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+        // Execute a SQL query
+        sql::ResultSet* res;
+        std::ostringstream statement;
+
+        /*
+         
+            SELECT score_points, score_question_count, score_time, game_mode_name, user_name FROM scores 
+            JOIN users ON users.user_id = scores.user_id  
+            JOIN game_modes ON game_modes.game_mode_id = scores.game_mode_id
+            WHERE game_modes.game_mode_id = << std::to_string(static_cast<int>(m_gameMode)) <<
+            ORDER BY scores.score_points DESC, scores.score_time DESC
+            LIMIT 10;
+
+        */
+
+        statement << "SELECT score_points, score_question_count, score_time, game_mode_name, user_name FROM scores JOIN users ON users.user_id = scores.user_id JOIN game_modes ON game_modes.game_mode_id = scores.game_mode_id WHERE game_modes.game_mode_id = " << std::to_string(static_cast<int>(m_gameMode)) << " ORDER BY scores.score_points DESC, scores.score_time DESC LIMIT 10;";
+        res = stmt->executeQuery(statement.str());
+
+        while (res->next())
+        {
+            scores.push_back(Score(
+                res->getInt("score_points"),
+                res->getInt("score_question_count"),
+                res->getInt("score_time"),
+                res->getString("user_name"),
+                res->getString("game_mode_name")
+            ));
+        }
+
+        delete res;
+        delete stmt;
+
+        return scores;
+    }
+    catch (const std::exception& e)
+    {
+        printf("Exception: %s\n", e.what());
+    }
+
+    return scores;
+}

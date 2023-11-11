@@ -25,8 +25,10 @@ enum ShowAdminPanel
     addQstn = 6,
 };
 
+
 ProgramStates programState = login;
 ShowAdminPanel showAdminPanel = NewQstn;
+GameMode currentGameMode = gmNone;
 
 int const SCREEN_WIDTH = 1200;
 int const SCREEN_HEIGHT = 800;
@@ -38,16 +40,21 @@ static AcountManager acountManager;
 static std::vector<Button> catagoryButtons;
 static std::vector<Button> answerButtons;
 
-std::vector<Category>* catagories;
+static std::vector<Text> scoresScoreTexts;
+static std::vector<Text> scoresNameTexts;
+static std::vector<Text> scoresQuestionCountTexts;
+static std::vector<Text> scoresTimeTexts;
 
-//std::vector<Category>* MySQL::GetCategories()
+std::vector<Category>* catagories;
+std::vector<Score> scores;
+std::vector<Panel> scoreBoardPanels;
+
 // initialization function will initialize methods, values and ect 
 // if it isnt able to initialize all of these things it will return a false
 // and will close the program
 bool Init();
 
 // close function will destroy all memory that has been allocated 
-
 void Close();
 // this funtion is used to update things
 void Update();
@@ -93,6 +100,11 @@ Text nameInputText;
 Text passwordInputText;
 Text adminPanelPageText;
 
+Text scoreboardScoreText;
+Text scoreboardNameText;
+Text scoreboardQuestionCountText;
+Text scoreboardTimeText;
+
 // button classes
 Button loginButton;
 Button registerButton;
@@ -103,7 +115,8 @@ Button signUpBtn;
 Button increaseTime;
 Button decreaseTime;
 
-Button startGameButton;
+Button startTimedGameButton;
+Button startSpeedRunGameButton;
 
 Button goToAdminButton;
 Button goToSetupFromAdminButton;
@@ -127,13 +140,13 @@ int scrollAmount = 0;
 int difficulty[7][2] =
 {
     // 5 questions - 20 sec
-    {5, 20},
-    {10, 30},
-    {15, 45},
-    {30, 60},
-    {50, 75},
-    {75, 90},
-    {100, 120}
+    {5, 30},
+    {10, 45},
+    {15, 60},
+    {30, 75},
+    {50, 90},
+    {75, 120},
+    {100, 150}
 };
 
 // this keeps track of what difficulty is selected
@@ -152,6 +165,12 @@ int countdownTime = 0;
 int startTime = 0;
 int elapsedTime = 0;
 int currentTime = 0;
+
+int countdownCurQtnTime = 10;
+int startCurQtnTime = 0;
+int elapsedCurQtnTime = 0;
+int currentCurQtnTime = 0;
+
 
 int countdownWarning = 0;
 int startWarning = 0;
@@ -345,6 +364,12 @@ bool Init()
         timeTotText = Text("tot time:", 50, 40, 45, gFont, { 0,0,0 }, gRenderer, left);
         timeCurText = Text("time:", 140, 80, 45, gFont, { 0,0,0 }, gRenderer, left);
 
+        timeCurText = Text("time:", 140, 80, 45, gFont, { 0,0,0 }, gRenderer, left);
+
+        scoreboardScoreText = Text("score", 190, 150, 45, gFont, { 0,0,0 }, gRenderer, left);
+        scoreboardNameText = Text("name", 400, 150, 45, gFont, { 0,0,0 }, gRenderer, left);
+        scoreboardQuestionCountText = Text("questions", 600, 150, 45, gFont, { 0,0,0 }, gRenderer, left);
+        scoreboardTimeText = Text("time", 880, 150, 45, gFont, { 0,0,0 }, gRenderer, left);
 
 
         difficultyText = Text("n/a", 325, SCREEN_HEIGHT - 150, 40, gFont, { 0,0,0 }, gRenderer, middle);
@@ -373,8 +398,11 @@ bool Init()
         goToAdminButton.SetText("go to admin", 40, gFont, { 10,10,10 });
         goToSetupFromAdminButton.SetText("go to setup", 40, gFont, { 10,10,10 });
 
-        startGameButton = Button(SCREEN_WIDTH - 450, SCREEN_HEIGHT - 200, 400, 150, { 100, 220,100 }, gRenderer);
-        startGameButton.SetText("start the game", 50, gFont, { 0,0,0 });
+        startTimedGameButton = Button(SCREEN_WIDTH - 450, SCREEN_HEIGHT - 240, 400, 100, { 100, 220,100 }, gRenderer);
+        startTimedGameButton.SetText("start timed game", 40, gFont, { 0,0,0 });
+
+        startSpeedRunGameButton = Button(SCREEN_WIDTH - 450, SCREEN_HEIGHT - 120, 400, 100, { 220, 100,100 }, gRenderer);
+        startSpeedRunGameButton.SetText("start speedrun game", 40, gFont, { 0,0,0 });
 
 
         SkipQuestionButton = Button(350, 40, 175, 80, { 220, 60, 250 }, gRenderer);
@@ -416,6 +444,27 @@ bool Init()
 
 
     #pragma endregion SearchDialogs init
+
+
+
+    //scoreBoardPanels
+    scoreBoardPanels.push_back(Panel(180, 200, 50, 820, { 255,0,215 }, gRenderer));
+    scoreBoardPanels.push_back(Panel(180, 250, 50, 820, { 230,230,230 }, gRenderer));
+    scoreBoardPanels.push_back(Panel(180, 300, 50, 820, { 150,90,120 }, gRenderer));
+    for (size_t i = 3; i < 9; i++)
+    {
+        int yPos = 200 + (i * 50);
+
+        if (i % 2 == 0)
+        {
+            scoreBoardPanels.push_back(Panel(180, yPos, 50, 820, { 200,200,200 }, gRenderer));
+        }
+        else
+        {
+            scoreBoardPanels.push_back(Panel(180, yPos, 50, 820, { 150,150,150 }, gRenderer));
+        }
+    }
+
 
     return success;
 }
@@ -502,6 +551,7 @@ void Setlogin()
     passwordTextInput.event += [&]() {passwordTextInput.EditText(editedText);};
 
 }
+
 void SetSetUp()
 {
     editedText = nullptr;
@@ -536,8 +586,10 @@ void SetSetUp()
 
     difficultyText.NewText("questions:" + std::to_string(difficulty[difficultyIndex][0]) + " time:" + std::to_string(difficulty[difficultyIndex][1]));
 
-    clickEvent += std::bind(&Button::OnClick, &startGameButton, &mouseX, &mouseY);
-    startGameButton.event += [&]()
+    clickEvent += std::bind(&Button::OnClick, &startTimedGameButton, &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &startSpeedRunGameButton, &mouseX, &mouseY);
+
+    startTimedGameButton.event += [&]()
     {
         bool atleastSelected = false;
         for (Category cat : *catagories)
@@ -559,6 +611,35 @@ void SetSetUp()
             return;
         }
 
+        currentGameMode = gmTimed;
+        std::vector<Category>& cats = *catagories;
+        quiz.StartQuiz(&cats, difficulty[difficultyIndex][0]);
+        SetGame();
+    };
+
+    startSpeedRunGameButton.event += [&]()
+    {
+        bool atleastSelected = false;
+        for (Category cat : *catagories)
+        {
+            if (cat.isSelected)
+            {
+                atleastSelected = true;
+            }
+        }
+        if (!atleastSelected)
+        {
+            ShowWarning("no catagories selected", 5);
+            return;
+        }
+        if (!quiz.HasEnoughQuestions(catagories, difficulty[difficultyIndex][0]))
+        {
+            ShowWarning("not enough catagories selected", 5);
+            printf("not enough questions to start the quiz");
+            return;
+        }
+
+        currentGameMode = gmspeedrun;
         std::vector<Category>& cats = *catagories;
         quiz.StartQuiz(&cats, difficulty[difficultyIndex][0]);
         SetGame();
@@ -578,6 +659,11 @@ void NewQuestion(int m_index)
     clickEvent.Clear();
 
     clickEvent += std::bind(&Button::OnClick, &SkipQuestionButton, &mouseX, &mouseY);
+
+    if (currentGameMode == gmTimed)
+    {
+        startCurQtnTime = 0;
+    }
 
 
     int x = 0;
@@ -634,6 +720,7 @@ void NewQuestion(int m_index)
             if (questionIndex >= questionTotal)
             {
                 //send score to database
+                mysql.AddNewScore(user.id, CurrentScore * 10, difficulty[difficultyIndex][0], elapsedTime, currentGameMode);
                 SetScoreboard();
             }
             else
@@ -647,7 +734,17 @@ void NewQuestion(int m_index)
         clickEvent += std::bind(&Button::OnClick, *&btn, &mouseX, &mouseY);
     }
 
-    QuestionText.NewText(quiz.GetQuestion(m_index)->title);
+    //sepcial question
+    if (quiz.GetQuestion(m_index)->value > 1)
+    {
+        QuestionText.NewColor({ 0,0,250 });
+        QuestionText.NewText(quiz.GetQuestion(m_index)->title + " x2 points");
+    }
+    else
+    {
+        QuestionText.NewColor({ 0,0,0 });
+        QuestionText.NewText(quiz.GetQuestion(m_index)->title);
+    }
 }
 
 void SetGame()
@@ -662,6 +759,8 @@ void SetGame()
     QuestionText.NewText(quiz.GetQuestion(0)->title);
     NewQuestion(0);
 
+
+    //elapsedTime
     SkipQuestionButton.event += [&]()
     {
         questionIndex++;
@@ -669,6 +768,7 @@ void SetGame()
         if (questionIndex >= questionTotal)
         {
             //send score to database
+            mysql.AddNewScore(user.id, CurrentScore * 10, difficulty[difficultyIndex][0], elapsedTime, currentGameMode);
             SetScoreboard();
         }
         else
@@ -680,11 +780,25 @@ void SetGame()
 
     startTime = SDL_GetTicks() / 1000;
     //difficulty
-    countdownTime = difficulty[difficultyIndex][1];
-
+    if (gmTimed)
+    {
+        countdownTime = difficulty[difficultyIndex][1];
+    }
 }
 void SetScoreboard()
 {
+    scores = mysql.GetScores(currentGameMode);
+
+    int yPos = 200;
+    for (const Score s : scores)
+    {
+        scoresScoreTexts.push_back(Text(std::to_string(s.score), 200, yPos, 50, gFont, { 10,10,10 }, gRenderer, left));
+        scoresNameTexts.push_back(Text( s.userName , 300, yPos, 50, gFont, { 10,10,10 }, gRenderer, left));
+        scoresQuestionCountTexts.push_back(Text(std::to_string(s.questionCount), 700, yPos, 50, gFont, { 10,10,10 }, gRenderer, left));
+        scoresTimeTexts.push_back(Text(std::to_string(s.time), 900, yPos, 50, gFont, { 10,10,10 }, gRenderer, left));
+        yPos += 50;
+    }
+
     pageTitle.NewText("scoreboard");
     programState = scoreboard;
     clickEvent.Clear();
@@ -716,7 +830,6 @@ void SetAdmin()
 
 void Updatelogin()
 {
-
     loginButton.Render();
     registerButton.Render();
 
@@ -743,7 +856,8 @@ void UpdateSetUp()
     difficultyText.Render();
 
     pageTitle.Render();
-    startGameButton.Render();
+    startTimedGameButton.Render();
+    startSpeedRunGameButton.Render();
 
     for (Button btn : catagoryButtons)
     {
@@ -759,17 +873,34 @@ void UpdateGame()
     SkipQuestionButton.Render();
     HalfQuestionsButton.Render();
 
-
     currentTime = SDL_GetTicks() / 1000;
     elapsedTime = currentTime - startTime;
-    if (countdownTime - elapsedTime < 1)
+    elapsedCurQtnTime = currentTime - startCurQtnTime;
+
+    switch (currentGameMode)
     {
-        SetScoreboard();
+        case gmTimed:
+        {
+            if (countdownTime - elapsedTime < 1 || countdownCurQtnTime - elapsedCurQtnTime < 1)
+            {
+                SetScoreboard();
+            }
+            timeTotText.NewText("tot time:" + std::to_string(countdownTime - elapsedTime));
+            timeCurText.NewText("time:" + std::to_string(countdownCurQtnTime - elapsedCurQtnTime));
+            timeCurText.Render();
+            break;
+        }
+        case gmspeedrun:
+        {
+            timeTotText.NewText("cur time:" + std::to_string(elapsedTime));
+            break;
+        }
+        case gmNone:
+        default:
+        break;
     }
 
-    timeTotText.NewText("tot time:" + std::to_string(countdownTime - elapsedTime));
     timeTotText.Render();
-    timeCurText.Render();
 
     //catagoryButtons
     for (Button btn : answerButtons)
@@ -782,6 +913,26 @@ void UpdateGame()
 void UpdateScoreboard()
 {
     pageTitle.Render();
+
+    scoreboardScoreText.Render();
+    scoreboardNameText.Render();
+    scoreboardQuestionCountText.Render();
+    scoreboardTimeText.Render();
+
+
+    for (Panel p : scoreBoardPanels)
+    {
+        p.Render();
+    }
+
+    for (size_t i = 0; i < scores.size() - 1; i++)
+    {
+        scoresScoreTexts[i].Render();
+        scoresNameTexts[i].Render();
+        scoresQuestionCountTexts[i].Render();
+        scoresTimeTexts[i].Render();
+    }
+
 }
 
 void UpdateAdminPanel()
