@@ -16,7 +16,7 @@ TextInput::TextInput(int m_xPos, int m_yPos, int m_height, int m_width,
 	SDL_Color m_color, SDL_Color m_fontColor, SDL_Color m_BorderColor,
 	SDL_Renderer* m_renderer, TTF_Font* m_font)
 {
-	rect = { m_xPos, m_yPos, m_height, m_width };
+	rect = { m_xPos, m_yPos, m_width, m_height };
 
 	color = m_color;
 	fontColor = m_fontColor;
@@ -24,7 +24,7 @@ TextInput::TextInput(int m_xPos, int m_yPos, int m_height, int m_width,
 
 	renderer = m_renderer;
 	InputTexture = nullptr;
-	text = new Text("test", m_xPos * 1.05f, m_yPos * 1.05f, m_height * 0.1f, m_font, m_fontColor, renderer, left);
+	text = new Text("test", m_xPos * 1.05f, m_yPos * 1.05f, m_height * 0.8f, m_font, m_fontColor, renderer, left);
 	UpdateTexture();
 }
 

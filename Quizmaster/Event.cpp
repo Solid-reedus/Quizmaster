@@ -30,6 +30,14 @@ void Event::InvokeCopy()
     }
 }
 
+void Event::RemoveAt(size_t index)
+{
+
+    if (index < handlers.size()) {
+        handlers.erase(handlers.begin() + index);
+    }
+}
+
 void Event::Clear()
 {
     handlers.clear();

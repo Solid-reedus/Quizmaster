@@ -6,6 +6,8 @@
 #endif
 
 #include <functional>
+#include <algorithm>
+
 
 class Event
 {
@@ -16,6 +18,7 @@ class Event
     void operator+=(const EventHandler& handler);
 	void Invoke();
 	void InvokeCopy();
+	void RemoveAt(size_t index);
 	void Clear();
 
 	private:

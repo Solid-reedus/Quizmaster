@@ -23,6 +23,7 @@ class SearchDialog
 	void Render();
 	void OnScroll(int* m_x, int* m_y, int* m_a);
 	void FreeItems();
+	void ResetRelXPos();
 	std::vector<ISearchDialogable*>* GetElements();
 	
 	private:

@@ -61,6 +61,14 @@ void Button::SetText(std::string m_text, int m_size, TTF_Font* m_font, SDL_Color
 	}
 }
 
+void Button::TextSetMaxWidth(int m_width)
+{
+	if (text != nullptr)
+	{
+		text->SetMaxWidth(m_width);
+	}
+}
+
 void Button::SetIcon(SDL_Texture* m_texture, float m_angle)
 {
 	if (text == nullptr)
@@ -77,10 +85,6 @@ void Button::SetIcon(SDL_Texture* m_texture, float m_angle)
 	}
 }
 
-void Button::SetTextMaxWidth(int m_width)
-{
-	text->SetMaxWidth(m_width);
-}
 
 void Button::ChangeText(std::string m_text)
 {

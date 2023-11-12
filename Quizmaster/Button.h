@@ -31,10 +31,10 @@ class Button : public ISearchDialogable
 	void OnClick(int* m_x, int* m_y);
 	void Free();
 	void SetText(std::string m_text, int m_size, TTF_Font* m_font, SDL_Color m_color);
+	void TextSetMaxWidth(int m_width);
 	void SetIcon(SDL_Texture* m_texture = nullptr, float m_angle = NULL);
 	void ChangeText(std::string m_text);
 	void SetColor(SDL_Color m_color);
-	void SetTextMaxWidth(int m_width);
 
 	virtual void Render() override;
 	virtual void SetNewRect(const int m_xPos, const int m_yPos, const int m_width, const int m_height) override;

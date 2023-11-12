@@ -22,7 +22,6 @@ enum ShowAdminPanel
     delCat = 3,
     admUser = 4,
     delUser = 5,
-    addQstn = 6,
 };
 
 
@@ -118,16 +117,26 @@ Button decreaseTime;
 Button startTimedGameButton;
 Button startSpeedRunGameButton;
 
+Button goToSetupFromScoreboardButton;
 Button goToAdminButton;
 Button goToSetupFromAdminButton;
+Button executeAdminButton;
 
 Button SkipQuestionButton;
 Button HalfQuestionsButton;
 
+Button AddFalseQuestionButton;
+Button AddTrueQuestionButton;
+
 TextInput nameTextInput;
 TextInput passwordTextInput;
+TextInput adminTextInput;
+TextInput adminAddQuestionTextInput;
 
-SearchDialog searchDialog;
+
+SearchDialog adminSearchDialog;
+SearchDialog adminSubSearchDialog;
+Panel AdminBackPanel;
 
 
 // this event is used to invoke all Onclick events
@@ -180,6 +189,8 @@ int elapsedWarning = 0;
 // update loop
 Text* editedText = nullptr;
 
+std::string SelectedString;
+
 // this is a shortend way to generate a random number
 int getRandomNumber(int m_min, int m_max)
 {
@@ -198,36 +209,200 @@ void ShowWarning(std::string m_text, int m_seconds)
 // this is a switch that changes what is shown on the admin panel
 void SetShowAdminPanel(int m_index)
 {
+
+    clickEvent.Clear();
+
+    clickEvent += std::bind(&Button::OnClick, &goToSetupFromAdminButton, &mouseX, &mouseY);
+
+    std::vector<ISearchDialogable*>* items = adminSearchDialog.GetElements();
+    Uint8 step = 0;
+
+    for (ISearchDialogable* i : *items)
+    {
+        Button* buttonPtr = dynamic_cast<Button*>(i);
+        if (buttonPtr)
+        {
+            //buttonPtr->event += std::bind(&SetShowAdminPanel, step);
+            clickEvent += std::bind(&Button::OnClick, buttonPtr, &mouseX, &mouseY);
+            step++;
+        }
+    }
+
+    executeAdminButton.event += [m_index]()
+    {
+        switch (m_index)
+        {
+        case 0:
+        {
+            break;
+        }
+        case 1:
+        {
+            if (SelectedString != "")
+            {
+                mysql.DeleteRowOf(tblQuestions, SelectedString);
+                SetShowAdminPanel(m_index);
+            }
+            break;
+        }
+        case 2:
+        {
+            mysql.MakeCategory(adminTextInput.text->GetText());
+            adminTextInput.text->NewText("");
+            SetShowAdminPanel(0);
+            break;
+        }
+        case 3:
+        {
+            if (SelectedString != "")
+            {
+                mysql.DeleteRowOf(tblCategories, SelectedString);
+                SetShowAdminPanel(m_index);
+            }
+            break;
+        }
+        case 4:
+        {
+            if (SelectedString != "")
+            {
+                mysql.MakeAdmin(SelectedString);
+                SetShowAdminPanel(m_index);
+            }
+            break;
+        }
+        case 5:
+        {
+            if (SelectedString != "")
+            {
+                mysql.DeleteRowOf(tblUserNames, SelectedString);
+                SetShowAdminPanel(m_index);
+            }
+            break;
+        }
+        default:
+            break;
+        }
+    };
+
+    clickEvent += std::bind(&Button::OnClick, &executeAdminButton, &mouseX, &mouseY);
+
+    adminSubSearchDialog.FreeItems();
+    adminSubSearchDialog.ResetRelXPos();
+    /*
+    adminSubSearchDialog
+    
+    */
     switch (m_index)
     {
     case 0:
         adminPanelPageText.NewText("new question");
+
+        clickEvent += std::bind(&TextInput::OnClick, &adminTextInput, &mouseX, &mouseY);
+        adminTextInput.event += [&]() {adminTextInput.EditText(editedText);};
+
         showAdminPanel = NewQstn;
         break;
     case 1:
+    {
         adminPanelPageText.NewText("delete question");
+        
+        for (std::string r : mysql.GetAllRowsOf(tblQuestions))
+        {
+            Button* b = new Button(0, 150, 200, 60, { 220, 220, 220 }, gRenderer);
+
+            b->SetText(r, 60, gFont, { 0,0,0 });
+            b->TextSetMaxWidth(325);
+            adminSubSearchDialog.AddItem(b);
+
+            b->event += [r]()
+            {
+                SelectedString = r;
+                executeAdminButton.ChangeText("delete: " + SelectedString);
+            };
+            clickEvent += std::bind(&Button::OnClick, *&b, &mouseX, &mouseY);
+
+        }
         showAdminPanel = delQstn;
         break;
+    }
+
     case 2:
+    {
         adminPanelPageText.NewText("new catagory");
+
+        clickEvent += std::bind(&TextInput::OnClick, &adminTextInput, &mouseX, &mouseY);
+        adminTextInput.event += [&]() {adminTextInput.EditText(editedText);};
+        executeAdminButton.ChangeText("make");
+
         showAdminPanel = NewCat;
         break;
+    }
     case 3:
+    {
         adminPanelPageText.NewText("delete catagory");
+
+        for (std::string r : mysql.GetAllRowsOf(tblCategories))
+        {
+            Button* b = new Button(0, 150, 200, 60, { 220, 220, 220 }, gRenderer);
+
+            b->SetText(r, 60, gFont, { 0,0,0 });
+            b->TextSetMaxWidth(325);
+            b->event += [r]()
+            {
+                SelectedString = r;
+                executeAdminButton.ChangeText("delete: " + SelectedString);
+            };
+            adminSubSearchDialog.AddItem(b);
+            clickEvent += std::bind(&Button::OnClick, *&b, &mouseX, &mouseY);
+        }
+
         showAdminPanel = delCat;
         break;
+    }
     case 4:
+    {
         adminPanelPageText.NewText("make user admin");
+
+        for (std::string r : mysql.GetAllRowsOf(tblUserNames))
+        {
+            Button* b = new Button(0, 150, 200, 60, { 220, 220, 220 }, gRenderer);
+
+            b->SetText(r, 60, gFont, { 0,0,0 });
+            b->TextSetMaxWidth(325);
+            b->event += [r]()
+            {
+                SelectedString = r;
+                executeAdminButton.ChangeText("make user: " + SelectedString + " admin");
+            };
+            adminSubSearchDialog.AddItem(b);
+            clickEvent += std::bind(&Button::OnClick, *&b, &mouseX, &mouseY);
+        }
+
         showAdminPanel = admUser;
         break;
+    }
     case 5:
+    {
         adminPanelPageText.NewText("delete user");
+
+        for (std::string r : mysql.GetAllRowsOf(tblUserNames))
+        {
+            Button* b = new Button(0, 150, 200, 60, { 220, 220, 220 }, gRenderer);
+
+            b->SetText(r, 60, gFont, { 0,0,0 });
+            b->TextSetMaxWidth(325);
+            b->event += [r]()
+            {
+                SelectedString = r;
+                executeAdminButton.ChangeText("delete: " + SelectedString);
+            };
+            adminSubSearchDialog.AddItem(b);
+            clickEvent += std::bind(&Button::OnClick, *&b, &mouseX, &mouseY);
+        }
+
         showAdminPanel = delUser;
         break;
-    case 6:
-        adminPanelPageText.NewText("add extra ansers");
-        showAdminPanel = addQstn;
-        break;
+    }
     default:
         break;
     }
@@ -289,7 +464,6 @@ bool Init()
 
     // this code will generate a random seed so the program can use random numbers
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
-
 
     // here multiple things get defined
     quiz.SetMySQL(&mysql);
@@ -371,21 +545,35 @@ bool Init()
         scoreboardQuestionCountText = Text("questions", 600, 150, 45, gFont, { 0,0,0 }, gRenderer, left);
         scoreboardTimeText = Text("time", 880, 150, 45, gFont, { 0,0,0 }, gRenderer, left);
 
-
         difficultyText = Text("n/a", 325, SCREEN_HEIGHT - 150, 40, gFont, { 0,0,0 }, gRenderer, middle);
         warningText = Text("", SCREEN_WIDTH / 2, 125, 50, gFont, { 250,50,50 }, gRenderer, middle);
 
         nameInputText = Text("name:", SCREEN_WIDTH / 2, 200, 50, gFont, { 0,0,0 }, gRenderer, middle);
         passwordInputText = Text("password:", SCREEN_WIDTH / 2, 350, 50, gFont, { 0,0,0 }, gRenderer, middle);
 
-        adminPanelPageText = Text("page:", SCREEN_WIDTH / 3, 150, 50, gFont, { 0,0,0 }, gRenderer, left);
+        adminPanelPageText = Text("page:", SCREEN_WIDTH / 3 + 50, 200, 50, gFont, { 0,0,0 }, gRenderer, left);
 
-        nameTextInput = TextInput(250, 250, 650, 80, { 200,200,200 }, { 1,1,1 },
+        nameTextInput = TextInput(250, 250, 80, 650, { 200,200,200 }, { 1,1,1 },
             { 10,200,10 }, gRenderer, gFont);
         nameTextInput.text->SetMaxWidth(630);
-        passwordTextInput = TextInput(250, 400, 650, 80, { 200,200,200 }, { 1,1,1 },
+
+        passwordTextInput = TextInput(250, 400, 80, 650, { 200,200,200 }, { 1,1,1 },
             { 10,200,10 }, gRenderer, gFont);
         passwordTextInput.text->SetMaxWidth(630);
+
+        adminTextInput = TextInput(785, SCREEN_HEIGHT - 400, 100, 300, { 150,150,150 }, { 1,1,1 },
+            { 10,200,10 }, gRenderer, gFont);
+        adminTextInput.text->SetMaxWidth(250);
+
+        adminAddQuestionTextInput = TextInput(785, SCREEN_HEIGHT - 580, 100, 300, { 150,150,150 }, { 1,1,1 },
+                { 10,200,10 }, gRenderer, gFont);
+        adminAddQuestionTextInput.text->SetMaxWidth(250);
+
+
+        AddFalseQuestionButton = Button(785, SCREEN_HEIGHT - 470, 140, 60, { 200,50, 50 }, gRenderer);
+        AddTrueQuestionButton  = Button(945, SCREEN_HEIGHT - 470, 140, 60, { 50,50, 200 }, gRenderer);
+        AddTrueQuestionButton.SetText("add correct", 20, gFont, { 10,10,10 });
+        AddFalseQuestionButton.SetText("add falsse", 20, gFont, { 10,10,10 });
 
         loginButton = Button(250, 550, 300, 150, { 100,100,100 }, gRenderer);
         registerButton = Button(600, 550, 300, 150, { 100,100,100 }, gRenderer);
@@ -394,9 +582,12 @@ bool Init()
 
         goToAdminButton = Button(40, 40, 300, 100, { 200, 200, 200 }, gRenderer);
         goToSetupFromAdminButton = Button(40, 40, 300, 100, { 200, 200, 200 }, gRenderer);
+        executeAdminButton = Button(785, SCREEN_HEIGHT - 290, 300, 200, { 50, 50, 200 }, gRenderer);
 
         goToAdminButton.SetText("go to admin", 40, gFont, { 10,10,10 });
         goToSetupFromAdminButton.SetText("go to setup", 40, gFont, { 10,10,10 });
+        executeAdminButton.SetText("none", 100, gFont, { 10,10,10 });
+        executeAdminButton.TextSetMaxWidth(300);
 
         startTimedGameButton = Button(SCREEN_WIDTH - 450, SCREEN_HEIGHT - 240, 400, 100, { 100, 220,100 }, gRenderer);
         startTimedGameButton.SetText("start timed game", 40, gFont, { 0,0,0 });
@@ -411,13 +602,16 @@ bool Init()
         HalfQuestionsButton = Button(550, 40, 175, 80, { 50, 50, 250 }, gRenderer);
         HalfQuestionsButton.SetText("half", 50, gFont, { 0,0,0 });
 
-        searchDialog = SearchDialog(25, 180, 350, SCREEN_HEIGHT - 250, 100, { 180, 180, 180 }, gRenderer);
+        adminSearchDialog = SearchDialog(25, 180, 350, SCREEN_HEIGHT - 250, 100, { 180, 180, 180 }, gRenderer);
+        adminSubSearchDialog = SearchDialog(420, 250, 350, SCREEN_HEIGHT - 340, 100, { 150, 150, 150 }, gRenderer);
+
+        AdminBackPanel = Panel(400, 180, SCREEN_HEIGHT - 250, SCREEN_WIDTH - 500, {200,200 ,200 }, gRenderer);
 
     #pragma endregion button init
 
-    #pragma region SearchDialogs init
+    #pragma region adminSearchDialogs init
 
-        const Uint8 shdItemCount = 7;
+        const Uint8 shdItemCount = 6;
         std::string shdItems[shdItemCount]
         {
             "new question",
@@ -426,7 +620,6 @@ bool Init()
             "delete catagory",
             "make user admin",
             "delete user",
-            "add extra answers",
         };
         for (size_t i = 0; i < shdItemCount; i++)
         {
@@ -438,14 +631,14 @@ bool Init()
             // on click change the panel
             b->event += std::bind(&SetShowAdminPanel, i);
             //push item to items list
-            searchDialog.AddItem(b);
+            adminSearchDialog.AddItem(b);
         }
-        scrollEvent += std::bind(&SearchDialog::OnScroll, &searchDialog, &mouseX, &mouseY, &scrollAmount);
+
+        scrollEvent += std::bind(&SearchDialog::OnScroll, &adminSearchDialog, &mouseX, &mouseY, &scrollAmount);
+        scrollEvent += std::bind(&SearchDialog::OnScroll, &adminSubSearchDialog, &mouseX, &mouseY, &scrollAmount);
 
 
-    #pragma endregion SearchDialogs init
-
-
+    #pragma endregion adminSearchDialogs init
 
     //scoreBoardPanels
     scoreBoardPanels.push_back(Panel(180, 200, 50, 820, { 255,0,215 }, gRenderer));
@@ -475,7 +668,7 @@ bool Init()
 void Close()
 {
     //free heap memory
-    searchDialog.FreeItems();
+    adminSearchDialog.FreeItems();
     quiz.Free();
 
     SDL_FreeSurface(gSurface);
@@ -488,6 +681,8 @@ void Close()
     gRenderer = NULL;
 
     nameTextInput.Free();
+    passwordInputText.Free();
+    adminTextInput.Free();
     pageTitle.Free();
 
 
@@ -514,7 +709,16 @@ void Setlogin()
         std::string password = passwordTextInput.text->GetText();
 
         printf("name = %s and password = %s \n ", name.c_str(), password.c_str());
-        if (acountManager.UserExsist(name, password))
+
+        if (name == "")
+        {
+            ShowWarning("name is empty", 3);
+        }
+        else if (password == "")
+        {
+            ShowWarning("password is empty", 3);
+        }
+        else if (acountManager.UserExsist(name, password))
         {
             printf("user exisit \n ");
             User localUser = *acountManager.GetUser(name, password);
@@ -531,7 +735,16 @@ void Setlogin()
     {
         std::string name = nameTextInput.text->GetText();
         std::string password = passwordTextInput.text->GetText();
-        if (!acountManager.UserNameIsTaken(name))
+
+        if (name == "")
+        {
+            ShowWarning("name is empty", 3);
+        }
+        else if (password == "")
+        {
+            ShowWarning("password is empty", 3);
+        }
+        else if (!acountManager.UserNameIsTaken(name))
         {
             acountManager.MakeNewUser(name, password);
             User localUser = *acountManager.GetUser(name, password);
@@ -659,10 +872,12 @@ void NewQuestion(int m_index)
     clickEvent.Clear();
 
     clickEvent += std::bind(&Button::OnClick, &SkipQuestionButton, &mouseX, &mouseY);
+    clickEvent += std::bind(&Button::OnClick, &HalfQuestionsButton, &mouseX, &mouseY);
 
     if (currentGameMode == gmTimed)
     {
-        startCurQtnTime = 0;
+        startCurQtnTime = SDL_GetTicks() / 1000;
+
     }
 
 
@@ -702,7 +917,7 @@ void NewQuestion(int m_index)
         SDL_Color c = { r,g,b };
         answerButtons.push_back(Button(xPos, yPos, 500, height, c, gRenderer));
         answerButtons.back().SetText(a.text, height / 4, gFont, { 0,0,0 });
-        answerButtons.back().SetTextMaxWidth(450);
+        answerButtons.back().TextSetMaxWidth(450);
 
 
         Uint8 mod = quiz.GetQuestion(m_index)->value;
@@ -753,8 +968,7 @@ void SetGame()
     clickEvent.Clear();
     scoreText.NewText("score:00");
     questionTotal = quiz.GetQuestionCount();
-
-    std::vector<Answer> answers;
+    startCurQtnTime = SDL_GetTicks() / 1000;
 
     QuestionText.NewText(quiz.GetQuestion(0)->title);
     NewQuestion(0);
@@ -777,8 +991,34 @@ void SetGame()
         }
     };
 
+    HalfQuestionsButton.event += [&]()
+    {
+        std::vector<Answer> ans = quiz.GetQuestion(questionIndex)->answers;
 
-    startTime = SDL_GetTicks() / 1000;
+        bool atLeastOneTrue = false;
+        int popCount = 0;
+        int i = 0;
+
+        while (popCount < (ans.size() / 2) + 1)
+        {
+            if (ans[i - popCount].isTrue && !atLeastOneTrue)
+            {
+                atLeastOneTrue = true;
+            }
+            else
+            {
+                answerButtons.erase(answerButtons.begin() + i - popCount);
+                ans.erase(ans.begin() + i - popCount);
+
+                popCount++;
+            }
+            i++;
+        }
+    };
+
+
+
+   startTime = SDL_GetTicks() / 1000;
     //difficulty
     if (gmTimed)
     {
@@ -812,7 +1052,7 @@ void SetAdmin()
     goToSetupFromAdminButton.event += std::bind(SetSetUp);
     clickEvent += std::bind(&Button::OnClick, &goToSetupFromAdminButton, &mouseX, &mouseY);
 
-    std::vector<ISearchDialogable*>* items = searchDialog.GetElements();
+    std::vector<ISearchDialogable*>* items = adminSearchDialog.GetElements();
     Uint8 step = 0;
 
     for (ISearchDialogable* i : *items)
@@ -940,31 +1180,51 @@ void UpdateAdminPanel()
     switch (showAdminPanel)
     {
     case NewQstn:
+    {
+        adminSubSearchDialog.Render();
+        adminTextInput.Render();
+        adminAddQuestionTextInput.Render();
+        AddFalseQuestionButton.Render();
+        AddTrueQuestionButton.Render();
         break;
+    }
     case delQstn:
+    {
+        adminSubSearchDialog.Render();
         break;
+    }
     case NewCat:
+    {
+        adminTextInput.Render();
         break;
+    }
     case delCat:
+    {
+        adminSubSearchDialog.Render();
         break;
+    }
     case admUser:
+        adminSubSearchDialog.Render();
         break;
     case delUser:
+    {
+        adminSubSearchDialog.Render();
         break;
-    case addQstn:
-        break;
+    }
     default:
         break;
     }
+    executeAdminButton.Render();
 }
 
 void UpdateAdmin()
 {
+    AdminBackPanel.Render();
     adminPanelPageText.Render();
     UpdateAdminPanel();
     pageTitle.Render();
     goToSetupFromAdminButton.Render();
-    searchDialog.Render();
+    adminSearchDialog.Render();
 }
 
 
@@ -1079,7 +1339,6 @@ void Update()
         //this code will display the final result
         SDL_RenderPresent(gRenderer);
     }
-
 }
 
 

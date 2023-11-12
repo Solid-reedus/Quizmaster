@@ -114,10 +114,18 @@ std::vector<ISearchDialogable*>* SearchDialog::GetElements()
 	return &elements;
 }
 
+void SearchDialog::ResetRelXPos()
+{
+	relxPos = 0;
+}
+
 void SearchDialog::FreeItems()
 {
-	for (ISearchDialogable* e : elements)
+
+	for (auto it = elements.begin(); it != elements.end(); ) 
 	{
-		delete e;
+		delete *it;  // Deletes the element
+		it = elements.erase(it);  // Removes the element from the vector and returns the iterator to the next element
 	}
+
 }

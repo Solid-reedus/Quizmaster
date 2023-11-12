@@ -32,6 +32,13 @@ enum GameMode
 	gmspeedrun = 2,
 };
 
+enum table
+{
+	tblQuestions,
+	tblCategories,
+	tblUserNames
+};
+
 class MySQL
 {
 	public:
@@ -48,6 +55,13 @@ class MySQL
 	bool UserNameIsTaken(std::string m_name);
 	bool HasEnoughQuestions(std::vector<Category>* m_categories, int m_count);
 	std::vector<Category>* GetCategories();
+	std::vector<std::string> GetAllRowsOf(table m_table);
+	void DeleteRowOf(table m_table, std::string m_what);
+	void MakeAdmin(std::string m_who);
+	bool HasForeignKeys(table m_table, std::string m_who);
+	bool CatagoryHasQuestionWithAnsers(std::string m_who);
+	void MakeCategory(std::string m_name);
+
 	private:
 
 	bool ConnectToDb();

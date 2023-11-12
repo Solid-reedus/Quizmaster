@@ -517,3 +517,329 @@ std::vector<Score> MySQL::GetScores(GameMode m_gameMode)
 
     return scores;
 }
+
+std::vector<std::string> MySQL::GetAllRowsOf(table m_table)
+{
+    std::vector<std::string> result;
+
+    if (!con)
+    {
+        printf("cannot get scores there isnt a connecttion \n");
+        return result;
+    }
+
+    try
+    {
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+        // Execute a SQL query
+        sql::ResultSet* res;
+        std::ostringstream statement;
+        std::string name = "";
+
+        switch (m_table)
+        {
+        case tblQuestions:
+            statement << "SELECT question_title FROM questions;";
+            name = "question_title";
+            break;
+        case tblCategories:
+            statement << "SELECT category_name FROM categories;";
+            name = "category_name";
+            break;
+        case tblUserNames:
+            statement << "SELECT user_name FROM users;";
+            name = "user_name";
+            break;
+        default:
+            statement << "";
+            break;
+        }
+
+        res = stmt->executeQuery(statement.str());
+
+        while (res->next())
+        {
+            result.push_back(res->getString(name));
+        }
+
+        delete res;
+        delete stmt;
+
+        return result;
+    }
+    catch (const std::exception& e)
+    {
+        printf("Exception: %s\n", e.what());
+    }
+
+    return result;
+}
+
+void MySQL::MakeCategory(std::string m_name)
+{
+    if (!con)
+    {
+        printf("cannot get users there isnt a connecttion \n");
+        return;
+    }
+
+    try
+    {
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+        // Execute a SQL query
+        sql::ResultSet* res;
+        std::ostringstream statement;
+        statement << "INSERT INTO categories(category_name) VALUES ('" << m_name << "');";
+
+        res = stmt->executeQuery(statement.str());
+
+        delete res;
+        delete stmt;
+
+        return;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "SQL Error: " << e.what() << std::endl;
+    }
+}
+
+bool MySQL::CatagoryHasQuestionWithAnsers(std::string m_who)
+{
+    if (!con)
+    {
+        printf("cannot get questions there isnt a connecttion \n");
+        return false;
+    }
+
+    if (m_who == "")
+    {
+        printf("who isnt stated \n");
+    }
+
+    try
+    {
+        // Create a statement
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+
+        // Execute a SQL query
+        sql::ResultSet* res;
+
+        std::ostringstream statement;
+        statement << "SELECT * FROM categories RIGHT JOIN questions ON questions.category_id = categories.category_id RIGHT JOIN answers ON answers.question_id = questions.question_id WHERE category_name = '" << m_who << "';";
+
+        res = stmt->executeQuery(statement.str());
+
+        if (!res->next())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQL Error: " << e.what() << std::endl;
+    }
+    return false;
+}
+
+bool MySQL::HasForeignKeys(table m_table, std::string m_who)
+{
+    if (!con)
+    {
+        printf("cannot get questions there isnt a connecttion \n");
+        return false;
+    }
+
+    if (m_who == "")
+    {
+        printf("who isnt stated \n");
+    }
+
+    try
+    {
+        // Create a statement
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+
+        // Execute a SQL query
+        sql::ResultSet* res;
+
+        std::ostringstream statement;
+
+        switch (m_table)
+        {
+        case tblQuestions:
+        {
+            statement << "SELECT * FROM questions RIGHT JOIN answers ON answers.question_id = questions.question_id WHERE question_title = '" << m_who << "';";
+            break;
+        }
+        case tblCategories:
+        {
+            statement << "SELECT * FROM categories RIGHT JOIN questions ON questions.category_id = categories.category_id WHERE category_name = '" << m_who << "';";
+            break;
+        }
+        case tblUserNames:
+        {
+            statement << " SELECT * FROM users RIGHT JOIN scores ON scores.user_id = users.user_id WHERE user_name = '" << m_who << "';";
+            break;
+        }
+        
+        default:
+        break;
+        }
+
+        res = stmt->executeQuery(statement.str());
+
+        if (!res->next())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQL Error: " << e.what() << std::endl;
+    }
+    return false;
+}
+
+void MySQL::DeleteRowOf(table m_table, std::string m_what)
+{
+    if (!con) 
+    {
+        printf("cannot get questions there isn't a connection \n");
+        return;
+    }
+    try {
+        // Create a statement
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+
+        // Execute a SQL query
+        std::ostringstream statement;
+
+        switch (m_table)
+        {
+            case tblQuestions:
+            {
+                /*
+                DELETE questions, answers
+                FROM questions
+                JOIN answers ON answers.question_id = questions.question_id
+                WHERE question_title = '" << m_what << "';
+                */
+
+                //question has answers
+                if (HasForeignKeys(m_table, m_what))
+                {
+                    statement << "DELETE questions, answers FROM questions JOIN answers ON answers.question_id = questions.question_id WHERE question_title = '" << m_what << "';";
+                }
+                else
+                {
+                    statement << "DELETE FROM questions WHERE question_title = '" << m_what << "';";
+                }
+
+                break;
+            }
+            case tblCategories:
+            {
+                /*
+                    DELETE categories, questions, answers
+                    FROM categories
+                    JOIN questions ON questions.category_id = categories.category_id
+                    JOIN answers ON answers.question_id = questions.question_id
+                    WHERE category_name = '" << m_what << "';
+                */
+
+                //if catagory has question and ansers
+                if (CatagoryHasQuestionWithAnsers(m_what))
+                {
+                    statement << "DELETE categories, questions, answers FROM categories JOIN questions ON questions.category_id = categories.category_id JOIN answers ON answers.question_id = questions.question_id WHERE category_name = '" << m_what << "';";
+                }
+                //only catagory and answers
+                else if (HasForeignKeys(m_table, m_what))
+                {
+                    statement << "DELETE categories, questions, answers FROM categories JOIN questions ON questions.category_id = categories.category_id WHERE category_name = '" << m_what << "';";
+                }
+                // only catagory
+                else
+                {
+                    statement << "DELETE FROM categories WHERE category_name = '" << m_what << "';";
+                }
+                break;
+
+            }
+            case tblUserNames:
+            {
+                /*
+                    DELETE users, scores
+                    FROM users
+                    JOIN scores ON scores.user_id = users.user_id
+                    WHERE user_name = '" << m_what << "';
+                */
+
+                //user has scores
+                if (HasForeignKeys(m_table, m_what))
+                {
+                    statement << "DELETE users, scores FROM users JOIN scores ON scores.user_id = users.user_id WHERE user_name = '" << m_what << "';";
+                }
+                else
+                {
+                    statement << "DELETE FROM users WHERE user_name = '" << m_what << "';";
+                }
+                break;
+            }
+            default:
+                statement << "";
+                break;
+        }
+
+        printf(statement.str().c_str());
+
+        stmt->execute(statement.str());
+        delete stmt;
+        return;
+    }
+    catch (const std::exception& e)
+    {
+        printf("Exception: %s\n", e.what());
+    }
+}
+
+void MySQL::MakeAdmin(std::string m_who)
+{
+    if (!con)
+    {
+        printf("cannot get users there isnt a connecttion \n");
+    }
+
+    try
+    {
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+        // Execute a SQL query
+        sql::ResultSet* res;
+        std::ostringstream statement;
+        statement << "UPDATE users SET user_is_admin = 1 WHERE user_name = '" << m_who << "';";
+        res = stmt->executeQuery(statement.str());
+
+        delete res;
+        delete stmt;
+        return;
+
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "SQL Error: " << e.what() << std::endl;
+    }
+}
