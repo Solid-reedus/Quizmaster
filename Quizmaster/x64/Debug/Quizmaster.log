@@ -1,10 +1,10 @@
 ﻿  Main.cpp
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(520,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(652,34): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(889,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(920,25): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(920,27): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(920,29): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(589,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(724,34): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(964,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(995,25): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(995,27): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(995,29): warning C4838: conversion from 'int' to 'Uint8' requires a narrowing conversion
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\type_traits(1572,67): warning C4244: 'argument': conversion from '_Cv_TiD' to 'int', possible loss of data
           with
           [
@@ -77,12 +77,12 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.3193
               _Ty=std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>,
               _Fx=std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>
           ]
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(633,57): message : see reference to function template instantiation 'std::function<void (void)>::function<std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>,0>(_Fx &&)' being compiled
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(707,57): message : see reference to function template instantiation 'std::function<void (void)>::function<std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>,0>(_Fx &&)' being compiled
           with
           [
               _Fx=std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>
           ]
-C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(633,22): message : see reference to function template instantiation 'std::function<void (void)>::function<std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>,0>(_Fx &&)' being compiled
+C:\Users\dogef\Documents\C++ project\Quizmaster\Quizmaster\Quizmaster\Main.cpp(707,22): message : see reference to function template instantiation 'std::function<void (void)>::function<std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>,0>(_Fx &&)' being compiled
           with
           [
               _Fx=std::_Binder<std::_Unforced,void (__cdecl *)(int),size_t &>

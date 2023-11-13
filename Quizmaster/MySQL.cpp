@@ -720,6 +720,11 @@ void MySQL::DeleteRowOf(table m_table, std::string m_what)
         printf("cannot get questions there isn't a connection \n");
         return;
     }
+    if (m_what == "" || m_what.empty())
+    {
+        printf("string empty \n");
+        return;
+    }
     try {
         // Create a statement
         sql::Statement* stmt;
@@ -843,3 +848,66 @@ void MySQL::MakeAdmin(std::string m_who)
         std::cerr << "SQL Error: " << e.what() << std::endl;
     }
 }
+
+void MySQL::MakeQuestion(Question m_question, std::string m_category) {
+    if (!con) {
+        printf("Cannot execute query; there isn't a connection.\n");
+        return;
+    }
+
+    try 
+    {
+        sql::Statement* stmt;
+        stmt = con->createStatement();
+
+        int catagoryId = -1;
+        for (const Category c : *GetCategories()) 
+        {
+            if (c.name == m_category) 
+            {
+                catagoryId = c.id;
+                break;  // Exit loop once the category is found
+            }
+        }
+
+        if (catagoryId == -1) 
+        {
+            printf("Category %s doesn't exist\n", m_category.c_str());
+            return;
+        }
+
+        // Insert the question
+        std::ostringstream questionInsert;
+        questionInsert << "INSERT INTO questions(question_title, category_id) VALUES ('" << m_question.title << "', " << catagoryId << ");";
+        stmt->executeUpdate(questionInsert.str());
+
+        // Retrieve the last inserted question ID
+        std::ostringstream lastID;
+        lastID << "SELECT LAST_INSERT_ID();";
+        sql::ResultSet* res = stmt->executeQuery(lastID.str());
+        int lastQuestionID = 0;
+        if (res->next()) {
+            lastQuestionID = res->getInt(1);
+        }
+
+        // Insert the answers related to the question
+        std::ostringstream answersInsert;
+        answersInsert << "INSERT INTO answers(answer_name, answer_is_correct, question_id) VALUES ";
+        for (size_t i = 0; i < m_question.answers.size(); ++i) 
+        {
+            answersInsert << "('" << m_question.answers[i].text << "', " << m_question.answers[i].isTrue << ", " << lastQuestionID << ")";
+            if (i < m_question.answers.size() - 1) 
+            {
+                answersInsert << ",";
+            }
+        }
+        answersInsert << ";";
+        stmt->executeUpdate(answersInsert.str());
+
+        delete stmt;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "SQL Error: " << e.what() << std::endl;
+    }
+}
+

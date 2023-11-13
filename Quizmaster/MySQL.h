@@ -61,6 +61,7 @@ class MySQL
 	bool HasForeignKeys(table m_table, std::string m_who);
 	bool CatagoryHasQuestionWithAnsers(std::string m_who);
 	void MakeCategory(std::string m_name);
+	void MakeQuestion(Question m_question, std::string m_category);
 
 	private:
 

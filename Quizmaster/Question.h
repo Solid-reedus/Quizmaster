@@ -19,6 +19,7 @@ public:
 class Question
 {
 	public:
+	Question();
 	Question(std::string m_title, std::vector<Answer> m_answers);
 	void AddAnswer(std::string m_text, bool m_isTrue);
 	std::string title;

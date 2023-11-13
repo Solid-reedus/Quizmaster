@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 
+// this enum is used to display right page
 enum ProgramStates
 {
     login = 1,
@@ -14,6 +15,7 @@ enum ProgramStates
     admin = 5
 };
 
+// this is for showing the correct panel in the admin
 enum ShowAdminPanel
 {
     NewQstn = 0,
@@ -132,6 +134,7 @@ TextInput nameTextInput;
 TextInput passwordTextInput;
 TextInput adminTextInput;
 TextInput adminAddQuestionTextInput;
+TextInput adminCatagoryQuestionTextInput;
 
 
 SearchDialog adminSearchDialog;
@@ -184,12 +187,18 @@ int currentCurQtnTime = 0;
 int countdownWarning = 0;
 int startWarning = 0;
 int elapsedWarning = 0;
+bool currentHalfed = false;
 
 // this text is used to intercact with a textInput and the main event in the 
 // update loop
 Text* editedText = nullptr;
 
+// these values are for the admin
+// these values will change based on the panel and button pressed
 std::string SelectedString;
+Question currentEditedQuestion = Question();
+std::vector<Answer> currentEditedAnswers;
+
 
 // this is a shortend way to generate a random number
 int getRandomNumber(int m_min, int m_max)
@@ -209,9 +218,7 @@ void ShowWarning(std::string m_text, int m_seconds)
 // this is a switch that changes what is shown on the admin panel
 void SetShowAdminPanel(int m_index)
 {
-
     clickEvent.Clear();
-
     clickEvent += std::bind(&Button::OnClick, &goToSetupFromAdminButton, &mouseX, &mouseY);
 
     std::vector<ISearchDialogable*>* items = adminSearchDialog.GetElements();
@@ -228,12 +235,21 @@ void SetShowAdminPanel(int m_index)
         }
     }
 
+
     executeAdminButton.event += [m_index]()
     {
+
         switch (m_index)
         {
         case 0:
         {
+            if (currentEditedAnswers.size() > 0 && 
+                adminTextInput.text->GetText() != "" && 
+                adminCatagoryQuestionTextInput.text->GetText() != "")
+            {
+                currentEditedQuestion = Question(adminTextInput.text->GetText(), currentEditedAnswers);
+                mysql.MakeQuestion(currentEditedQuestion, adminCatagoryQuestionTextInput.text->GetText());
+            }
             break;
         }
         case 1:
@@ -241,15 +257,18 @@ void SetShowAdminPanel(int m_index)
             if (SelectedString != "")
             {
                 mysql.DeleteRowOf(tblQuestions, SelectedString);
-                SetShowAdminPanel(m_index);
+                SetShowAdminPanel(0);
             }
             break;
         }
         case 2:
         {
-            mysql.MakeCategory(adminTextInput.text->GetText());
-            adminTextInput.text->NewText("");
-            SetShowAdminPanel(0);
+            if (adminTextInput.text->GetText() != "" || adminTextInput.text != nullptr)
+            {
+                mysql.MakeCategory(adminTextInput.text->GetText());
+                adminTextInput.text->NewText("");
+                SetShowAdminPanel(0);
+            }
             break;
         }
         case 3:
@@ -257,7 +276,7 @@ void SetShowAdminPanel(int m_index)
             if (SelectedString != "")
             {
                 mysql.DeleteRowOf(tblCategories, SelectedString);
-                SetShowAdminPanel(m_index);
+                SetShowAdminPanel(0);
             }
             break;
         }
@@ -266,7 +285,7 @@ void SetShowAdminPanel(int m_index)
             if (SelectedString != "")
             {
                 mysql.MakeAdmin(SelectedString);
-                SetShowAdminPanel(m_index);
+                SetShowAdminPanel(0);
             }
             break;
         }
@@ -275,7 +294,7 @@ void SetShowAdminPanel(int m_index)
             if (SelectedString != "")
             {
                 mysql.DeleteRowOf(tblUserNames, SelectedString);
-                SetShowAdminPanel(m_index);
+                SetShowAdminPanel(0);
             }
             break;
         }
@@ -288,20 +307,70 @@ void SetShowAdminPanel(int m_index)
 
     adminSubSearchDialog.FreeItems();
     adminSubSearchDialog.ResetRelXPos();
-    /*
-    adminSubSearchDialog
-    
-    */
+
+
+
     switch (m_index)
     {
     case 0:
+    {
         adminPanelPageText.NewText("new question");
-
-        clickEvent += std::bind(&TextInput::OnClick, &adminTextInput, &mouseX, &mouseY);
         adminTextInput.event += [&]() {adminTextInput.EditText(editedText);};
+        adminAddQuestionTextInput.event += [&]() {adminAddQuestionTextInput.EditText(editedText);};
+        adminCatagoryQuestionTextInput.event += [&]() {adminCatagoryQuestionTextInput.EditText(editedText);};
+
+        AddFalseQuestionButton.event += []()
+        {
+            if (adminAddQuestionTextInput.text->GetText() == "")
+            {
+                return;
+            }
+            currentEditedAnswers.push_back(Answer(adminAddQuestionTextInput.text->GetText(), false));
+            adminAddQuestionTextInput.text->NewText("");
+
+            adminSubSearchDialog.FreeItems();
+            for (const Answer a : currentEditedAnswers)
+            {
+                Button* b = new Button(0, 150, 200, 60, { 220, 220, 220 }, gRenderer);
+
+                b->SetText(a.text , 60, gFont, { 0,0,0 });
+                b->TextSetMaxWidth(325);
+                adminSubSearchDialog.AddItem(b);
+            }
+        };
+        AddTrueQuestionButton.event += []()
+        {
+            if (adminAddQuestionTextInput.text->GetText() == "")
+            {
+                return;
+            }
+            currentEditedAnswers.push_back(Answer(adminAddQuestionTextInput.text->GetText(), true));
+            adminAddQuestionTextInput.text->NewText("");
+
+            adminSubSearchDialog.FreeItems();
+            for (const Answer a : currentEditedAnswers)
+            {
+                Button* b = new Button(0, 150, 200, 60, { 220, 220, 220 }, gRenderer);
+
+                b->SetText(a.text, 60, gFont, { 0,0,0 });
+                b->TextSetMaxWidth(325);
+                adminSubSearchDialog.AddItem(b);
+            }
+        };
+
+        clickEvent += std::bind(&Button::OnClick, &AddFalseQuestionButton, &mouseX, &mouseY);
+        clickEvent += std::bind(&Button::OnClick, &AddTrueQuestionButton, &mouseX, &mouseY);
+        clickEvent += std::bind(&TextInput::OnClick, &adminTextInput, &mouseX, &mouseY);
+        clickEvent += std::bind(&TextInput::OnClick, &adminAddQuestionTextInput, &mouseX, &mouseY);
+        clickEvent += std::bind(&TextInput::OnClick, &adminCatagoryQuestionTextInput, &mouseX, &mouseY);
+
+        currentEditedQuestion = Question();
+
+        //currentEditedAnswers
 
         showAdminPanel = NewQstn;
         break;
+    }
     case 1:
     {
         adminPanelPageText.NewText("delete question");
@@ -565,10 +634,16 @@ bool Init()
             { 10,200,10 }, gRenderer, gFont);
         adminTextInput.text->SetMaxWidth(250);
 
-        adminAddQuestionTextInput = TextInput(785, SCREEN_HEIGHT - 580, 100, 300, { 150,150,150 }, { 1,1,1 },
+        adminAddQuestionTextInput = TextInput(785, SCREEN_HEIGHT - 530, 50, 300, { 150,150,150 }, { 1,1,1 },
                 { 10,200,10 }, gRenderer, gFont);
         adminAddQuestionTextInput.text->SetMaxWidth(250);
 
+        adminCatagoryQuestionTextInput = TextInput(785, SCREEN_HEIGHT - 585, 50, 300, { 150,150,150 }, { 1,1,1 },
+            { 10,200,10 }, gRenderer, gFont);
+        adminCatagoryQuestionTextInput.text->SetMaxWidth(250);
+
+        goToSetupFromScoreboardButton = Button(SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT - 125, 300, 75, { 100,100,100 }, gRenderer);
+        goToSetupFromScoreboardButton.SetText("go to setup", 40, gFont, { 10,10,10 });
 
         AddFalseQuestionButton = Button(785, SCREEN_HEIGHT - 470, 140, 60, { 200,50, 50 }, gRenderer);
         AddTrueQuestionButton  = Button(945, SCREEN_HEIGHT - 470, 140, 60, { 50,50, 200 }, gRenderer);
@@ -695,7 +770,6 @@ void Close()
 
 void Setlogin()
 {
-
     programState = login;
     clickEvent.Clear();
     pageTitle.NewText("login");
@@ -775,7 +849,10 @@ void SetSetUp()
     clickEvent += std::bind(&Button::OnClick, &decreaseTime, &mouseX, &mouseY);
     clickEvent += std::bind(&Button::OnClick, &increaseTime, &mouseX, &mouseY);
 
-    clickEvent += std::bind(&Button::OnClick, &goToAdminButton, &mouseX, &mouseY);
+    if (user.isAdmin)
+    {
+        clickEvent += std::bind(&Button::OnClick, &goToAdminButton, &mouseX, &mouseY);
+    }
 
     goToAdminButton.event += std::bind(SetAdmin);
 
@@ -870,6 +947,7 @@ void NewQuestion(int m_index)
 {
     answerButtons.clear();
     clickEvent.Clear();
+    currentHalfed = false;
 
     clickEvent += std::bind(&Button::OnClick, &SkipQuestionButton, &mouseX, &mouseY);
     clickEvent += std::bind(&Button::OnClick, &HalfQuestionsButton, &mouseX, &mouseY);
@@ -993,26 +1071,31 @@ void SetGame()
 
     HalfQuestionsButton.event += [&]()
     {
-        std::vector<Answer> ans = quiz.GetQuestion(questionIndex)->answers;
-
-        bool atLeastOneTrue = false;
-        int popCount = 0;
-        int i = 0;
-
-        while (popCount < (ans.size() / 2) + 1)
+        if (!currentHalfed)
         {
-            if (ans[i - popCount].isTrue && !atLeastOneTrue)
-            {
-                atLeastOneTrue = true;
-            }
-            else
-            {
-                answerButtons.erase(answerButtons.begin() + i - popCount);
-                ans.erase(ans.begin() + i - popCount);
+            currentHalfed = true;
+            std::vector<Answer> ans = quiz.GetQuestion(questionIndex)->answers;
 
-                popCount++;
+            bool atLeastOneTrue = false;
+            int popCount = 0;
+            int i = 0;
+
+            while (popCount < (ans.size() / 2) + 1)
+            {
+                if (ans[i - popCount].isTrue && !atLeastOneTrue)
+                {
+                    atLeastOneTrue = true;
+                }
+                else
+                {
+                    answerButtons.erase(answerButtons.begin() + i - popCount);
+                    ans.erase(ans.begin() + i - popCount);
+
+                    popCount++;
+                }
+                i++;
             }
-            i++;
+
         }
     };
 
@@ -1025,8 +1108,14 @@ void SetGame()
         countdownTime = difficulty[difficultyIndex][1];
     }
 }
+
 void SetScoreboard()
 {
+    CurrentScore = 0;
+    questionIndex = 0;
+    questionTotal = 0;
+
+    clickEvent.Clear();
     scores = mysql.GetScores(currentGameMode);
 
     int yPos = 200;
@@ -1039,10 +1128,13 @@ void SetScoreboard()
         yPos += 50;
     }
 
+    goToSetupFromScoreboardButton.event += std::bind(SetSetUp);
+    clickEvent += std::bind(&Button::OnClick, &goToSetupFromScoreboardButton, &mouseX, &mouseY);
+
     pageTitle.NewText("scoreboard");
     programState = scoreboard;
-    clickEvent.Clear();
 }
+
 void SetAdmin()
 {
     pageTitle.NewText("admin");
@@ -1066,7 +1158,6 @@ void SetAdmin()
         }
     }
 }
-
 
 void Updatelogin()
 {
@@ -1153,7 +1244,7 @@ void UpdateGame()
 void UpdateScoreboard()
 {
     pageTitle.Render();
-
+    goToSetupFromScoreboardButton.Render();
     scoreboardScoreText.Render();
     scoreboardNameText.Render();
     scoreboardQuestionCountText.Render();
@@ -1186,6 +1277,7 @@ void UpdateAdminPanel()
         adminAddQuestionTextInput.Render();
         AddFalseQuestionButton.Render();
         AddTrueQuestionButton.Render();
+        adminCatagoryQuestionTextInput.Render();
         break;
     }
     case delQstn:
@@ -1227,7 +1319,8 @@ void UpdateAdmin()
     adminSearchDialog.Render();
 }
 
-
+// main update funtion that will execude the
+// update that corosponds to current page enum
 void Update()
 {
     bool quit = false;
@@ -1340,7 +1433,6 @@ void Update()
         SDL_RenderPresent(gRenderer);
     }
 }
-
 
 int main(int argc, char* args[])
 {

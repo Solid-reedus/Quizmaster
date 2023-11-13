@@ -45,7 +45,6 @@ void Quiz::StartQuiz(std::vector<Category>* m_categories, int m_amount)
 		questions = mysql->GetQuestions(m_categories, m_amount);
 
 		//modify values from questions
-
 		//if question is lesser than the interval then return early
 		if ((questions.size() / SUPER_QUESTION_INTERVAL) < 1)
 		{
@@ -55,11 +54,11 @@ void Quiz::StartQuiz(std::vector<Category>* m_categories, int m_amount)
 		for (size_t i = SUPER_QUESTION_INTERVAL; i < questions.size(); i+= SUPER_QUESTION_INTERVAL)
 		{
 			Uint8 index = getRandomNumber(i, i + SUPER_QUESTION_INTERVAL);
-			if (index < questions.size() - 1)
+			if (index > questions.size() - 1)
 			{
 				index = questions.size() - 1;
 			}
-			questions[getRandomNumber(i, i +SUPER_QUESTION_INTERVAL)].value = 2;
+			questions[index].value = 2;
 		}
 
 	}

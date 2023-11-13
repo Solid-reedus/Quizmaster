@@ -104,7 +104,7 @@ void Button::OnClick(int* m_x, int* m_y)
 		*m_y > rect.y && *m_y < rect.y + rect.h)
 	{
 		printf("clicked on clickable \n");
-		event.Invoke();
+		event.InvokeCopy();
 	}
 }
 
